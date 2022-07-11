@@ -1,0 +1,36 @@
+.header {
+    position: fixed;
+    height: 64px;
+    width: 100vw;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 16%);
+}
+
+.light-mode {
+    background: #fff;
+    color: black;
+}
+
+.light-mode h3 {
+    color: black;
+}
+
+.dark-mode {
+    background-image: linear-gradient(310deg,#141727,#3a416f);
+}
+
+.dark-mode h3 {
+    color: white;
+}
+
+
+.title {
+    margin-left: 5%;
+}
+
+.control {
+    margin-right: 5%;
+}
