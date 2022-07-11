@@ -15,7 +15,7 @@ const Header = ({notify}) => {
 
     return (
         <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
-            <h3 className='title'>Gamer's Games</h3>
+            <h3 className='title'>Game On Star</h3>
             <div className='control'>
                 <DarkModeSwitch sx={{m: 1}} defaultChecked onChange={handleChange}/>
             </div>
