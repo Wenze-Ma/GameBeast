@@ -35,15 +35,23 @@ code {
 }
 
 .btn-info {
-    background-image: linear-gradient(310deg,#2152ff,#21d4fd);
+    background-image: linear-gradient(310deg, #2152ff, #21d4fd);
 }
 
 .btn-danger {
-    background-image: linear-gradient(310deg,#ea0606,#ff667c);
+    background-image: linear-gradient(310deg, #ea0606, #ff667c);
 }
 
 .btn-warning {
-    background-image: linear-gradient(310deg,#f53939,#fbcf33);
+    background-image: linear-gradient(310deg, #f53939, #fbcf33);
+}
+
+.btn-primary {
+    background-image: linear-gradient(310deg, #7928ca, #ff0080);
+}
+
+.btn-secondary {
+    background-image: linear-gradient(310deg,#627594,#a8b8d8);
 }
 
 .light-mode {

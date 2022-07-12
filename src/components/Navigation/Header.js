@@ -1,25 +1,130 @@
 import './header.css'
 import Utilities from "../../Utilities/Utilities";
-import {useState} from "react";
 import DarkModeSwitch from "../../Utilities/DarkModeSwitch";
+import {useNavigate} from "react-router-dom";
+import {
+    Search,
+    SearchIconWrapper,
+    SearchIconWrapperEnd, SearchMobile,
+    StyledInputBase,
+} from "../../Utilities/Search";
+import {CloseIcon, MenuIcon, SearchIcon} from "../../Images/Icons/Icons";
+import {useEffect, useRef, useState} from "react";
+import {Divider} from "@mui/material";
 
+const useOutsideHandler = (ref, toExpand, setToExpand) => {
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (ref.current && !ref.current.contains(event.target) && toExpand) {
+                setToExpand(false);
+            }
+        }
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [ref, setToExpand, toExpand]);
+}
 
-const Header = ({notify}) => {
-    const [dummy, setDummy] = useState(0);
+const Header = ({notify, dummy}) => {
 
+    const navigate = useNavigate();
     const handleChange = () => {
-        Utilities.toggleDarkMode();
-        setDummy(dummy + 1);
-        notify(dummy + 1);
+        Utilities.toggleDarkMode(notify, dummy);
+    }
+    const [toExpand, setToExpand] = useState(false);
+    const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
+    const inputRef = useRef(null);
+    const wrapperRef = useRef(null);
+    useOutsideHandler(wrapperRef, toExpand, setToExpand);
+
+    const onMobileSearch = () => {
+        setIsMobileSearchFocused(true);
+        const timeout = setTimeout(() => {
+            inputRef.current.focus();
+        }, 10);
+
+        return () => {
+            clearTimeout(timeout);
+        };
     }
 
     return (
-        <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
-            <h3 className='title'>Game On Star</h3>
-            <div className='control'>
-                <DarkModeSwitch sx={{m: 1}} defaultChecked onChange={handleChange}/>
+        <header ref={wrapperRef}>
+            <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
+                <div className='title' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
+                    <div className='menu-icon' onClick={() => setToExpand(!toExpand)}>
+                        {toExpand ? <CloseIcon/> : <MenuIcon/>}
+                    </div>
+                    <h3 onClick={() => navigate('/')}>Game On Star</h3>
+                </div>
+                <div className='tabs'>
+                    <p className='tab' onClick={() => navigate('/games')}>All Games</p>
+                    <p className='tab' onClick={() => navigate('/categories')}>Categories</p>
+                </div>
+                <div className='control' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
+                    <Search className='search'>
+                        <SearchIconWrapper sx={{zIndex: 1}}>
+                            <SearchIcon/>
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            placeholder="Search…"
+                            inputProps={{'aria-label': 'search'}}
+                        />
+                    </Search>
+                    <div className='search-icon' onClick={onMobileSearch}>
+                        <SearchIcon/>
+                    </div>
+                    <DarkModeSwitch sx={{m: 1}} checked={Utilities.isDarkMode} onChange={handleChange}/>
+                    <button className='btn btn-primary button-sign-up'>Sign Up</button>
+                </div>
+                <div className='search-mobile' style={{
+                    display: isMobileSearchFocused ? 'flex' : 'none',
+                    marginLeft: 10,
+                    marginRight: 10,
+                    width: '100%'
+                }}>
+                    <SearchMobile>
+                        <SearchIconWrapper sx={{zIndex: 1}}>
+                            <SearchIcon/>
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            placeholder="Search…"
+                            inputProps={{'aria-label': 'search'}}
+                            inputRef={inputRef}
+                            onBlur={() => setIsMobileSearchFocused(false)}
+                            onKeyDown={e => {
+                                if (e.key === 'Escape') {
+                                    setIsMobileSearchFocused(false);
+                                }
+                            }}
+                        />
+                        <SearchIconWrapperEnd sx={{zIndex: 1}}>
+                            <div className='escape'>
+                                Esc
+                            </div>
+                        </SearchIconWrapperEnd>
+                    </SearchMobile>
+                </div>
             </div>
-        </div>
+            <div className={`nav-list ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`}
+                 style={{maxHeight: toExpand ? '500px' : 0}}>
+                <div className='tabs-mobile'>
+                    <p className='tab-mobile' onClick={() => navigate('/games')}>All Games</p>
+                    <p className='tab-mobile' onClick={() => navigate('/categories')}>Categories</p>
+                </div>
+                <div className='divider'>
+                    <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
+                </div>
+                <div className='button-mobile'>
+                    <button className='btn btn-secondary'>Log In</button>
+                    <button className='btn btn-primary'>Sign Up</button>
+                </div>
+            </div>
+        </header>
+
     );
 };
 

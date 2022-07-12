@@ -1,8 +1,10 @@
 class Utilities {
     static isDarkMode = true;
 
-    static toggleDarkMode() {
+    static toggleDarkMode(setDummy, dummy) {
         Utilities.isDarkMode = !Utilities.isDarkMode;
+        localStorage.setItem('isDarkMode', Utilities.isDarkMode.toString());
+        setDummy(dummy + 1);
     }
 }
 
