@@ -1,5 +1,5 @@
 class Utilities {
-    static isDarkMode = true;
+    static isDarkMode = false;
 
     static toggleDarkMode(setDummy, dummy) {
         Utilities.isDarkMode = !Utilities.isDarkMode;

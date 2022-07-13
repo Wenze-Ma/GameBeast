@@ -2,7 +2,7 @@ import Utilities from "../Utilities/Utilities";
 
 const Home = () => {
     return (
-        <div style={{backgroundColor: Utilities.isDarkMode ? '#011E3C' : 'white', width: '100%', height: '200vh', marginTop: '64px'}}>
+        <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
             Hello
         </div>
     );

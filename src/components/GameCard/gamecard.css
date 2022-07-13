@@ -1,0 +1,113 @@
+
+:root {
+    --card-margin: 20px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    /*width: calc(100% / 3 - 2%);*/
+    /*background-color: black;*/
+    border-radius: 10px;
+    margin: 0 var(--card-margin) 2%;
+    /*width: 350px;*/
+    width: calc(20% - 2 * var(--card-margin));
+    /*height: 380px;*/
+    /*overflow: hidden;*/
+    align-self: stretch;
+    /*min-width: 300px;*/
+    /*cursor: pointer;*/
+}
+
+.page-light-mode .card {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+}
+
+.page-dark-mode .card {
+    box-shadow: 0 20px 27px 0 rgb(155 155 155 / 5%);
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+
+}
+
+.card-header {
+    display: flex;
+    margin: 15px 15px 0;
+}
+
+.card-header img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.card-body {
+    margin: 20px;
+}
+
+.tag {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.25;
+    margin: 8px 0 0;
+}
+
+.card-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.375;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.page-dark-mode .card-title {
+    color: white;
+}
+
+.page-dark-mode .card-description {
+    color: #AAB4BE;
+}
+
+.page-light-mode .card-title, .page-light-mode .card-description {
+    color: #344767;
+}
+
+.card-title:hover {
+    color: orange;
+    transition: 0.3s;
+}
+
+.card-description {
+    margin: 8px 0;
+    line-height: 1.625;
+    font-weight: 400;
+    color: #66748E;
+    font-family: 'Open Sans', sans-serif;
+    cursor: default;
+}
+
+@media (max-width: 900px) and (min-width: 550px) {
+    .card {
+        width: calc(50% - 2 * var(--card-margin));
+    }
+}
+
+@media (max-width: 550px) {
+    .card {
+        width: calc(100% - 2 * var(--card-margin));
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 900px) {
+    .card {
+        width: calc(100% / 3 - 2 * var(--card-margin));
+    }
+}
+
+@media (max-width: 1800px) and (min-width: 1200px) {
+    .card {
+        width: calc(25% - 2 * var(--card-margin));
+    }
+}

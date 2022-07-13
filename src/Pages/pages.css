@@ -1,0 +1,16 @@
+.card-list {
+    display: flex;
+    width: fit-content;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0 5%;
+    /*justify-content: center;*/
+}
+
+.page-dark-mode {
+    background-color: #2D2F34;
+}
+
+.page-light-mode {
+    background-color: #FBFBFD;
+}

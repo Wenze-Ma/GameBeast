@@ -19,6 +19,7 @@ const useOutsideHandler = (ref, toExpand, setToExpand) => {
                 setToExpand(false);
             }
         }
+
         // Bind the event listener
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
@@ -39,6 +40,29 @@ const Header = ({notify, dummy}) => {
     const inputRef = useRef(null);
     const wrapperRef = useRef(null);
     useOutsideHandler(wrapperRef, toExpand, setToExpand);
+    const gamesSelector = {
+        width: '92px',
+        left: 'calc(123px + 8%)',
+        display: 'block',
+    };
+    const categoriesSelector = {
+        width: '100px',
+        left: 'calc(215px + 8%)',
+        display: 'block',
+    };
+    const url = window.location.href.split('/');
+
+    let styles;
+
+    if (url[url.length - 1] === 'games') {
+        styles = gamesSelector;
+    } else if (url[url.length - 1] === 'categories') {
+        styles = categoriesSelector;
+    } else {
+        styles = {};
+    }
+
+
 
     const onMobileSearch = () => {
         setIsMobileSearchFocused(true);
@@ -63,6 +87,7 @@ const Header = ({notify, dummy}) => {
                 <div className='tabs'>
                     <p className='tab' onClick={() => navigate('/games')}>All Games</p>
                     <p className='tab' onClick={() => navigate('/categories')}>Categories</p>
+                    <div className='selected' style={styles}/>
                 </div>
                 <div className='control' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
                     <Search className='search'>
@@ -112,8 +137,14 @@ const Header = ({notify, dummy}) => {
             <div className={`nav-list ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`}
                  style={{maxHeight: toExpand ? '500px' : 0}}>
                 <div className='tabs-mobile'>
-                    <p className='tab-mobile' onClick={() => navigate('/games')}>All Games</p>
-                    <p className='tab-mobile' onClick={() => navigate('/categories')}>Categories</p>
+                    <p className='tab-mobile' onClick={() => {
+                        setToExpand(false);
+                        navigate('/games');
+                    }}>All Games</p>
+                    <p className='tab-mobile' onClick={() => {
+                        setToExpand(false);
+                        navigate('/categories');
+                    }}>Categories</p>
                 </div>
                 <div className='divider'>
                     <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
