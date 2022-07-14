@@ -25,6 +25,8 @@
     grid-template-columns: repeat(3, 150px);
     grid-template-rows: repeat(3, 150px);
     justify-content: center;
+    transition: max-height 0.2s ease-out;
+    overflow: hidden;
 }
 
 .ttt-table-layer {
@@ -203,7 +205,7 @@
     color: white;
 }
 
-.page-dark-mode .ttt-score {
+.page-dark-mode .ttt-score, .page-dark-mode .game-result {
     color: white;
 }
 
@@ -229,11 +231,34 @@
     transition: box-shadow .15s ease, border-color .15s ease;
 }
 
+.game-result {
+    position: absolute;
+    width: 100%;
+    height: calc(50% + 0.7em);
+    bottom: 0;
+    font-size: 160px;
+    display: flex;
+    justify-content: center;
+    max-height: 0;
+    overflow: hidden;
+    /*transition: max-height 0.4s ease-out;*/
+    font-family: 'Gochi Hand', cursive;
+    z-index: 10;
+}
+
+.game-result p {
+    margin: 0;
+}
+
 @media (max-width: 600px) {
     .cell {
         height: 100px;
         width: 100px;
         font-size: 80px;
+    }
+
+    .game-result {
+        font-size: 100px;
     }
 
     .ttt-table, .ttt-table-layer {
@@ -253,6 +278,10 @@
         font-size: 65px;
     }
 
+    .game-result {
+        font-size: 80px;
+    }
+
     .ttt-table, .ttt-table-layer {
         grid-template-columns: repeat(3, 80px);
         grid-template-rows: repeat(3, 80px);
@@ -268,6 +297,9 @@
         height: 60px;
         width: 60px;
         font-size: 50px;
+    }
+    .game-result {
+        font-size: 60px;
     }
 
     .ttt-table, .ttt-table-layer {
@@ -288,4 +320,17 @@
 @keyframes win-line-vertical-appear {
     from {height: 0;}
     to {height: 80%;}
+}
+
+@keyframes slide-up {
+    0% {
+        max-height: 0;
+    }
+    99% {
+        max-height: 1000px;
+    }
+    100% {
+        max-height: 0;
+        display: none;
+    }
 }

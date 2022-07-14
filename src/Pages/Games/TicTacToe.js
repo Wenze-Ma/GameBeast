@@ -16,9 +16,20 @@ const GAME_STATE = {
 }
 
 const map = {
-    '': null,
+    '': '',
     'X': <XIcon/>,
     'O': <OIcon/>,
+}
+
+const getResultColor = (gameState) => {
+    switch (gameState) {
+        case GAME_STATE.X_WIN:
+            return ' X';
+        case GAME_STATE.O_WIN:
+            return ' O';
+        default:
+            return '';
+    }
 }
 
 
@@ -115,8 +126,8 @@ const TicTacToe = () => {
                         <span className='text text-body'>{oScore}</span>
                     </div>
                 </div>
-                <div className='ttt-table'>
-                    {/*<div className='ttt-table-layer'>*/}
+                <div className='ttt-table' style={{maxHeight: isGameOver ? '0' : '1000px'}}>
+                    <div className='ttt-table-layer'>
                     {/*    <div className='win-line-horizontal'>*/}
                     {/*        <div className={`win-line`}></div>*/}
                     {/*        <div className={`win-line`}></div>*/}
@@ -131,7 +142,8 @@ const TicTacToe = () => {
                     {/*        <div className={`win-line`}></div>*/}
                     {/*        <div className={`win-line`}></div>*/}
                     {/*    </div>*/}
-                    {/*</div>*/}
+                        <div className={`game-result${getResultColor(gameState)}`} style={isGameOver ? {'animation': 'slide-up 1s'} : {}}><p>{gameState}</p></div>
+                    </div>
 
                     {board.map((value, index) =>
                         <div className={`cell${value === '' && !isGameOver ? '' : ' occupied ' + value}`} key={index}
