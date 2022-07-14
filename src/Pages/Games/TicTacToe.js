@@ -131,7 +131,7 @@ const TicTacToe = () => {
                              onClick={() => {
                                  handleOnClickCell(index)
                              }}>
-                            {value}
+                            <div>{value}</div>
                         </div>
                     )}
                 </div>

@@ -1,6 +1,7 @@
 :root {
     --X-color: #f5222d;
     --O-color: #2f54eb;
+    --ttt-font-family: 'Gochi Hand', cursive;
 }
 
 .ttt {
@@ -116,13 +117,16 @@
     width: 150px;
     height: 150px;
     text-align: center;
-    font-size: 120px;
-    font-weight: 600;
+    font-size: 160px;
+    font-weight: 700;
     box-shadow: 0 20px 27px 10px rgb(0 0 0 / 5%);
     border-radius: 5px;
     background-color: #d3adf7;
     cursor: pointer;
-    font-family: fantasy;
+    font-family: var(--ttt-font-family);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .game-state {
@@ -141,6 +145,13 @@
 
 .X {
     color: var(--X-color);
+}
+
+.X div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15%;
 }
 
 .O {
@@ -196,10 +207,10 @@
 }
 
 .text-header {
-    font-family: fantasy;
-    font-weight: 900;
+    font-family: var(--ttt-font-family);
+    font-weight: 400;
     font-size: 32px;
-    margin: 5px 10px -5px;
+    margin: 5px 10px 3px;
 }
 
 .text-body {
