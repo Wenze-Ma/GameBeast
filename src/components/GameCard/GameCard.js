@@ -1,6 +1,8 @@
 import './gamecard.css'
+import {useNavigate} from "react-router-dom";
 
-const GameCard = ({title, tag, description}) => {
+const GameCard = ({title, tag, description, href}) => {
+    const navigate = useNavigate();
     return (
         <div className='card'>
             <div className='card-header'>
@@ -8,7 +10,7 @@ const GameCard = ({title, tag, description}) => {
             </div>
             <div className='card-body'>
                 <p className='tag btn-primary'>{tag}</p>
-                <h5 className='card-title'>{title}</h5>
+                <h5 className='card-title' onClick={() => navigate(href)}>{title}</h5>
                 <p className='card-description'>{description}</p>
             </div>
         </div>

@@ -11,6 +11,8 @@ import {
 import {CloseIcon, MenuIcon, SearchIcon} from "../../Images/Icons/Icons";
 import {useEffect, useRef, useState} from "react";
 import {Divider} from "@mui/material";
+import SignUpModal from "../Modals/SignUpModal";
+import SignInModal from "../Modals/SignInModal";
 
 const useOutsideHandler = (ref, toExpand, setToExpand) => {
     useEffect(() => {
@@ -37,9 +39,13 @@ const Header = ({notify, dummy}) => {
     }
     const [toExpand, setToExpand] = useState(false);
     const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSignUp, setIsSignUp] = useState(false);
     const inputRef = useRef(null);
     const wrapperRef = useRef(null);
+    const modalRef = useRef(null);
     useOutsideHandler(wrapperRef, toExpand, setToExpand);
+    useOutsideHandler(modalRef, isModalOpen, setIsModalOpen);
     const gamesSelector = {
         width: '92px',
         left: 'calc(123px + 8%)',
@@ -63,7 +69,6 @@ const Header = ({notify, dummy}) => {
     }
 
 
-
     const onMobileSearch = () => {
         setIsMobileSearchFocused(true);
         const timeout = setTimeout(() => {
@@ -75,8 +80,13 @@ const Header = ({notify, dummy}) => {
         };
     }
 
+    const handleSignUp = (isSignUp) => {
+        setIsModalOpen(true);
+        setIsSignUp(isSignUp);
+    }
+
     return (
-        <header ref={wrapperRef}>
+        <div ref={wrapperRef}>
             <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
                 <div className='title' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
                     <div className='menu-icon' onClick={() => setToExpand(!toExpand)}>
@@ -103,7 +113,9 @@ const Header = ({notify, dummy}) => {
                         <SearchIcon/>
                     </div>
                     <DarkModeSwitch sx={{m: 1}} checked={Utilities.isDarkMode} onChange={handleChange}/>
-                    <button className='btn btn-primary button-sign-up'>Sign Up</button>
+                    {/*<button className='btn btn-secondary button-sign-up'>Log In</button>*/}
+                    <button className='btn btn-primary button-sign-up' onClick={() => handleSignUp(true)}>Sign Up
+                    </button>
                 </div>
                 <div className='search-mobile' style={{
                     display: isMobileSearchFocused ? 'flex' : 'none',
@@ -133,28 +145,34 @@ const Header = ({notify, dummy}) => {
                         </SearchIconWrapperEnd>
                     </SearchMobile>
                 </div>
+                <div className={`nav-list ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`}
+                     style={{maxHeight: toExpand ? '500px' : 0}}>
+                    <div className='tabs-mobile'>
+                        <p className='tab-mobile' onClick={() => {
+                            setToExpand(false);
+                            navigate('/games');
+                        }}>All Games</p>
+                        <p className='tab-mobile' onClick={() => {
+                            setToExpand(false);
+                            navigate('/categories');
+                        }}>Categories</p>
+                    </div>
+                    <div className='divider'>
+                        <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
+                    </div>
+                    <div className='button-mobile'>
+                        <button className='btn btn-secondary' onClick={() => handleSignUp(false)}>Sign In</button>
+                        <button className='btn btn-primary' onClick={() => handleSignUp(true)}>Sign Up</button>
+                    </div>
+                </div>
             </div>
-            <div className={`nav-list ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`}
-                 style={{maxHeight: toExpand ? '500px' : 0}}>
-                <div className='tabs-mobile'>
-                    <p className='tab-mobile' onClick={() => {
-                        setToExpand(false);
-                        navigate('/games');
-                    }}>All Games</p>
-                    <p className='tab-mobile' onClick={() => {
-                        setToExpand(false);
-                        navigate('/categories');
-                    }}>Categories</p>
-                </div>
-                <div className='divider'>
-                    <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
-                </div>
-                <div className='button-mobile'>
-                    <button className='btn btn-secondary'>Log In</button>
-                    <button className='btn btn-primary'>Sign Up</button>
-                </div>
+            <div className='modal-container' style={isModalOpen ? {display: 'block'} : {}}>
+                {isSignUp ?
+                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp}/> :
+                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp}/>
+                }
             </div>
-        </header>
+        </div>
 
     );
 };

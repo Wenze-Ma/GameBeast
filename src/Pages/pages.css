@@ -14,3 +14,9 @@
 .page-light-mode {
     background-color: #FBFBFD;
 }
+
+@media (max-width: 900px) {
+    .card-list {
+        margin: 0;
+    }
+}
