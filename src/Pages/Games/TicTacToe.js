@@ -1,6 +1,7 @@
 import Utilities from "../../Utilities/Utilities";
 import './tictactoe.css'
 import {useState} from "react";
+import {OIcon, XIcon} from "../../Images/Icons/Icons";
 
 const winConditions = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]
@@ -12,6 +13,12 @@ const GAME_STATE = {
     'X_WIN': 'X Wins',
     'O_WIN': 'O Wins',
     'TIE': 'Draw',
+}
+
+const map = {
+    '': null,
+    'X': <XIcon/>,
+    'O': <OIcon/>,
 }
 
 
@@ -97,14 +104,14 @@ const TicTacToe = () => {
             <div className='ttt'>
                 <div className='ttt-score'>
                     <div className={`text-group${gameState === GAME_STATE.X_TURN ? ' current-turn' : ''}`}>
-                        <span className='text X text-header'>X</span>
+                        <span className='text X text-header'><XIcon/></span>
                         <span className='text text-body'>{xScore}</span>
                     </div>
                     <div className='game-state'>
                         <p>{gameState}</p>
                     </div>
                     <div className={`text-group${gameState === GAME_STATE.O_TURN ? ' current-turn' : ''}`}>
-                        <span className='text O text-header'>O</span>
+                        <span className='text O text-header'><OIcon/></span>
                         <span className='text text-body'>{oScore}</span>
                     </div>
                 </div>
@@ -131,7 +138,7 @@ const TicTacToe = () => {
                              onClick={() => {
                                  handleOnClickCell(index)
                              }}>
-                            <div>{value}</div>
+                            <div>{map[value]}</div>
                         </div>
                     )}
                 </div>
