@@ -44,7 +44,22 @@
     margin: 0.5rem 0 1rem;
     display: flex;
     width: 100%;
+    /*flex-direction: column;*/
+    justify-content: end;
+    align-items: center;
 }
+
+.icon-wrapper {
+    position: absolute;
+    margin-right: 10px;
+    cursor: pointer;
+    padding-top: 4px;
+}
+
+/*.input-group p {*/
+/*    margin: 0 0.5rem;*/
+/*    color: red;*/
+/*}*/
 
 .form-control {
     display: block;
