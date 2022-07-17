@@ -98,6 +98,9 @@
     font-weight: 700;
     cursor: pointer;
     border-radius: 10px;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .dark-mode2 .tab-mobile {
@@ -217,5 +220,15 @@
 
     .divider {
         display: block;
+    }
+
+    .tab-mobile .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .button-mobile .tab-mobile {
+        padding: 12px 10px;
     }
 }

@@ -4,8 +4,9 @@ import {Divider} from "@mui/material";
 import GoogleLogin from "../Authentication/GoogleLogin";
 import {useState} from "react";
 import {EyeCloseIcon, EyeOpenIcon} from "../../Images/Icons/Icons";
+import UserService from "../../Service/UserService";
 
-const SignUpModal = ({modalRef, setIsSignUp}) => {
+const SignUpModal = ({modalRef, setIsSignUp, setUser}) => {
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -15,7 +16,12 @@ const SignUpModal = ({modalRef, setIsSignUp}) => {
 
     const handleOnSubmit = (event) => {
         event.preventDefault();
-        console.log(firstName, lastName, email, password1);
+        UserService.signUp({
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            password: password1,
+        }, setUser);
     }
 
     return (
@@ -71,7 +77,7 @@ const SignUpModal = ({modalRef, setIsSignUp}) => {
                 {/*    </div>*/}
                 {/*    <span>continue with google</span>*/}
                 {/*</button>*/}
-                <GoogleLogin/>
+                <GoogleLogin setUser={setUser}/>
 
             </div>
         </div>

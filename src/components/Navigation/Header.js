@@ -44,6 +44,7 @@ const Header = ({notify, dummy}) => {
     const inputRef = useRef(null);
     const wrapperRef = useRef(null);
     const modalRef = useRef(null);
+    const [user, setUser] = useState(null);
     useOutsideHandler(wrapperRef, toExpand, setToExpand);
     useOutsideHandler(modalRef, isModalOpen, setIsModalOpen);
     const gamesSelector = {
@@ -68,6 +69,9 @@ const Header = ({notify, dummy}) => {
         styles = {};
     }
 
+    useEffect(() => {
+        setIsModalOpen(false);
+    }, [user]);
 
     const onMobileSearch = () => {
         setIsMobileSearchFocused(true);
@@ -114,8 +118,20 @@ const Header = ({notify, dummy}) => {
                     </div>
                     <DarkModeSwitch sx={{m: 1}} checked={Utilities.isDarkMode} onChange={handleChange}/>
                     {/*<button className='btn btn-secondary button-sign-up'>Log In</button>*/}
-                    <button className='btn btn-primary button-sign-up' onClick={() => handleSignUp(true)}>Sign Up
-                    </button>
+                    <div className='button-sign-up'>
+                        <button
+                            className='btn btn-primary '
+                            onClick={() => handleSignUp(true)}
+                            style={{display: user ? 'none' : 'block'}}
+                        >
+                            Sign Up
+                        </button>
+                        <div className='avatar' style={{display: user ? 'flex' : 'none'}}>
+                            <span>{user?.firstName[0]}{user?.lastName[0]}</span>
+                        </div>
+                    </div>
+
+
                 </div>
                 <div className='search-mobile' style={{
                     display: isMobileSearchFocused ? 'flex' : 'none',
@@ -161,15 +177,25 @@ const Header = ({notify, dummy}) => {
                         <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
                     </div>
                     <div className='button-mobile'>
-                        <button className='btn btn-secondary' onClick={() => handleSignUp(false)}>Sign In</button>
-                        <button className='btn btn-primary' onClick={() => handleSignUp(true)}>Sign Up</button>
+                        <button className='btn btn-secondary' onClick={() => handleSignUp(false)}
+                                style={{display: user ? 'none' : 'block'}}>Sign In
+                        </button>
+                        <button className='btn btn-primary' onClick={() => handleSignUp(true)}
+                                style={{display: user ? 'none' : 'block'}}>Sign Up
+                        </button>
+                        <div className='tab-mobile' style={{display: user ? 'flex' : 'none'}}>
+                            <span>View My Profile</span>
+                            <div className='avatar'>
+                                <span>{user?.firstName[0]}{user?.lastName[0]}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div className='modal-container' style={isModalOpen ? {display: 'block'} : {}}>
                 {isSignUp ?
-                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp}/> :
-                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp}/>
+                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}/> :
+                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}/>
                 }
             </div>
         </div>

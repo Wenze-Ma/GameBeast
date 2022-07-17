@@ -145,7 +145,7 @@
     margin: 0;
 }
 
-.X {
+.X, .page-dark-mode .game-result.X {
     color: var(--X-color);
 }
 
@@ -163,7 +163,7 @@
     margin-top: 15%;
 }
 
-.O {
+.O, .page-dark-mode .game-result.O {
     color: var(--O-color);
 }
 

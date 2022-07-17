@@ -3,13 +3,20 @@ import './modals.css'
 import {Divider} from "@mui/material";
 import GoogleLogin from "../Authentication/GoogleLogin";
 import {useState} from "react";
+import {EyeCloseIcon, EyeOpenIcon} from "../../Images/Icons/Icons";
+import UserService from "../../Service/UserService";
 
-const SignInModal = ({modalRef, setIsSignUp}) => {
+const SignInModal = ({modalRef, setIsSignUp, setUser}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [eyeOpen, setEyeOpen] = useState(false);
+
     const handleOnSubmit = (event) => {
         event.preventDefault();
-        console.log(email, password);
+        UserService.signIn({
+            email: email,
+            password: password,
+        }, setUser);
     }
 
     return (
@@ -26,11 +33,11 @@ const SignInModal = ({modalRef, setIsSignUp}) => {
                     </div>
                     <label>Password</label>
                     <div className='input-group'>
-                        <input type='password' placeholder='Password' aria-label='Password'
-                               className='form-control' required value={password} onChange={event => {
-                            setPassword(event.target.value)
-                        }}/>
-
+                        <input type={eyeOpen ? 'text' : 'password'} placeholder='Password' aria-label='Password'
+                               className='form-control' required value={password}
+                               onChange={(event) => setPassword(event.target.value)}/>
+                        <div className='icon-wrapper' onClick={() => setEyeOpen(!eyeOpen)}>{eyeOpen ? <EyeCloseIcon/> :
+                            <EyeOpenIcon/>}</div>
                     </div>
                 </form>
             </div>
@@ -52,7 +59,7 @@ const SignInModal = ({modalRef, setIsSignUp}) => {
                 {/*    </div>*/}
                 {/*    <span>continue with google</span>*/}
                 {/*</button>*/}
-                <GoogleLogin/>
+                <GoogleLogin setUser={setUser}/>
             </div>
         </div>
     );

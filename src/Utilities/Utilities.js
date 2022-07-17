@@ -6,6 +6,8 @@ class Utilities {
         localStorage.setItem('isDarkMode', Utilities.isDarkMode.toString());
         setDummy(dummy + 1);
     }
+
+    static currentUser = null;
 }
 
 export default Utilities;
