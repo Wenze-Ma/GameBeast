@@ -49,6 +49,8 @@ const UserService = {
                     console.log('success third party');
                     setUser(response.data.user);
                     Utilities.currentUser = response.data.user;
+                } else {
+                    console.log('failed third party');
                 }
             })
     }
