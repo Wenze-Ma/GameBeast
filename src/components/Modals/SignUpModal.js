@@ -6,7 +6,11 @@ import {useState} from "react";
 import {EyeCloseIcon, EyeOpenIcon} from "../../Images/Icons/Icons";
 import UserService from "../../Service/UserService";
 
-const SignUpModal = ({modalRef, setIsSignUp, setUser}) => {
+const capitalize = word => {
+    return word[0].toUpperCase() + word.slice(1);
+}
+
+const SignUpModal = ({modalRef, setIsSignUp, setUser, setIsModelOpen}) => {
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -18,10 +22,10 @@ const SignUpModal = ({modalRef, setIsSignUp, setUser}) => {
         event.preventDefault();
         UserService.signUp({
             email: email,
-            firstName: firstName,
-            lastName: lastName,
+            firstName: capitalize(firstName),
+            lastName: capitalize(lastName),
             password: password1,
-        }, setUser);
+        }, setUser, setIsModelOpen);
     }
 
     return (
@@ -77,7 +81,7 @@ const SignUpModal = ({modalRef, setIsSignUp, setUser}) => {
                 {/*    </div>*/}
                 {/*    <span>continue with google</span>*/}
                 {/*</button>*/}
-                <GoogleLogin setUser={setUser}/>
+                <GoogleLogin setUser={setUser} setIsModalOpen={setIsModelOpen}/>
 
             </div>
         </div>

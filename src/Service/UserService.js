@@ -1,9 +1,10 @@
 import axios from "axios";
 import {server} from "../config";
 import Utilities from "../Utilities/Utilities";
+import Cookies from 'js-cookie';
 
 const UserService = {
-    signUp: (values, setUser) => {
+    signUp: (values, setUser, setIsModalOpen) => {
         const user = {
             email: values.email,
             firstName: values.firstName,
@@ -17,10 +18,12 @@ const UserService = {
                 } else {
                     console.log('registered');
                     setUser(response.data.user);
+                    Cookies.set('game_on_star_cookie', response.data.cookie);
+                    setIsModalOpen(false);
                 }
             });
     },
-    signIn: (values, setUser) => {
+    signIn: (values, setUser, setIsModalOpen) => {
         const user = {
             email: values.email,
             password: values.password,
@@ -31,12 +34,14 @@ const UserService = {
                     console.log('success');
                     setUser(response.data.user);
                     Utilities.currentUser = response.data.user;
+                    Cookies.set('game_on_star_cookie', response.data.cookie);
+                    setIsModalOpen(false);
                 } else {
                     console.log('failed');
                 }
             });
     },
-    thirdPartySignIn: (values, setUser) => {
+    thirdPartySignIn: (values, setUser, setIsModalOpen) => {
         const user = {
             email: values.email,
             thirdParty: true,
@@ -49,9 +54,20 @@ const UserService = {
                     console.log('success third party');
                     setUser(response.data.user);
                     Utilities.currentUser = response.data.user;
+                    Cookies.set('game_on_star_cookie', response.data.cookie);
+                    setIsModalOpen(false);
                 } else {
                     console.log('failed third party');
                 }
+            })
+    },
+    getUserByCookie: (cookie) => {
+        return axios.post(`${server}/users/user`, {cookie: cookie})
+            .then(response => {
+                if (response.data.success) {
+                    return response.data.user;
+                }
+                return null;
             })
     }
 }

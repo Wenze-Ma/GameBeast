@@ -13,6 +13,8 @@ import {useEffect, useRef, useState} from "react";
 import {Divider} from "@mui/material";
 import SignUpModal from "../Modals/SignUpModal";
 import SignInModal from "../Modals/SignInModal";
+import UserService from "../../Service/UserService";
+import Cookies from 'js-cookie';
 
 const useOutsideHandler = (ref, toExpand, setToExpand) => {
     useEffect(() => {
@@ -70,8 +72,9 @@ const Header = ({notify, dummy}) => {
     }
 
     useEffect(() => {
-        setIsModalOpen(false);
-    }, [user]);
+        UserService.getUserByCookie(Cookies.get('game_on_star_cookie'))
+            .then(response => setUser(response));
+    }, []);
 
     const onMobileSearch = () => {
         setIsMobileSearchFocused(true);
@@ -194,8 +197,8 @@ const Header = ({notify, dummy}) => {
             </div>
             <div className='modal-container' style={isModalOpen ? {display: 'block'} : {}}>
                 {isSignUp ?
-                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}/> :
-                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}/>
+                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser} setIsModelOpen={setIsModalOpen}/> :
+                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser} setIsModalOpen={setIsModalOpen}/>
                 }
             </div>
         </div>

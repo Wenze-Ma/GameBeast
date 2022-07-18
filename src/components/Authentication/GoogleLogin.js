@@ -3,22 +3,22 @@ import {useEffect} from "react";
 import UserService from "../../Service/UserService";
 
 
-const handleCallbackResponse = (response, setUser) => {
+const handleCallbackResponse = (response, setUser, setIsModalOpen) => {
     const userObject = jwtDecode(response.credential);
     UserService.thirdPartySignIn({
         email: userObject.email,
         firstName: userObject.given_name,
         lastName: userObject.family_name,
-    }, setUser);
+    }, setUser, setIsModalOpen);
 }
 
-const GoogleLogin = ({setUser}) => {
+const GoogleLogin = ({setUser, setIsModalOpen}) => {
     useEffect(() => {
         /* global google */
         if (typeof google === "undefined") return;
         google.accounts.id.initialize({
             client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-            callback: response => handleCallbackResponse(response, setUser)
+            callback: response => handleCallbackResponse(response, setUser, setIsModalOpen)
         });
         google.accounts.id.renderButton(
             document.getElementById('signInDiv'),

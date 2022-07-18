@@ -6,7 +6,7 @@ import {useState} from "react";
 import {EyeCloseIcon, EyeOpenIcon} from "../../Images/Icons/Icons";
 import UserService from "../../Service/UserService";
 
-const SignInModal = ({modalRef, setIsSignUp, setUser}) => {
+const SignInModal = ({modalRef, setIsSignUp, setUser, setIsModalOpen}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [eyeOpen, setEyeOpen] = useState(false);
@@ -16,7 +16,7 @@ const SignInModal = ({modalRef, setIsSignUp, setUser}) => {
         UserService.signIn({
             email: email,
             password: password,
-        }, setUser);
+        }, setUser, setIsModalOpen);
     }
 
     return (
@@ -59,7 +59,7 @@ const SignInModal = ({modalRef, setIsSignUp, setUser}) => {
                 {/*    </div>*/}
                 {/*    <span>continue with google</span>*/}
                 {/*</button>*/}
-                <GoogleLogin setUser={setUser}/>
+                <GoogleLogin setUser={setUser} setIsModalOpen={setIsModalOpen}/>
             </div>
         </div>
     );
