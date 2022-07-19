@@ -40,15 +40,18 @@ const Header = ({notify, dummy}) => {
         Utilities.toggleDarkMode(notify, dummy);
     }
     const [toExpand, setToExpand] = useState(false);
+    const [profileExpand, setProfileExpand] = useState(false);
     const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
     const inputRef = useRef(null);
     const wrapperRef = useRef(null);
     const modalRef = useRef(null);
+    const profileRef = useRef(null);
     const [user, setUser] = useState(null);
     useOutsideHandler(wrapperRef, toExpand, setToExpand);
     useOutsideHandler(modalRef, isModalOpen, setIsModalOpen);
+    useOutsideHandler(profileRef, profileExpand, setProfileExpand);
     const gamesSelector = {
         width: '92px',
         left: 'calc(123px + 8%)',
@@ -59,6 +62,11 @@ const Header = ({notify, dummy}) => {
         left: 'calc(215px + 8%)',
         display: 'block',
     };
+    const onlineSelector = {
+        width: '99px',
+        left: 'calc(315px + 8%)',
+        display: 'block',
+    }
     const url = window.location.href.split('/');
 
     let styles;
@@ -67,6 +75,8 @@ const Header = ({notify, dummy}) => {
         styles = gamesSelector;
     } else if (url[url.length - 1] === 'categories') {
         styles = categoriesSelector;
+    } else if (url[url.length - 1] === 'online') {
+        styles = onlineSelector;
     } else {
         styles = {};
     }
@@ -92,6 +102,14 @@ const Header = ({notify, dummy}) => {
         setIsSignUp(isSignUp);
     }
 
+    const handleSignOut = () => {
+        setToExpand(false);
+        setProfileExpand(false);
+        UserService.signOut().then(() => {
+            setUser(null);
+        });
+    }
+
     return (
         <div ref={wrapperRef}>
             <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
@@ -104,6 +122,7 @@ const Header = ({notify, dummy}) => {
                 <div className='tabs'>
                     <p className='tab' onClick={() => navigate('/games')}>All Games</p>
                     <p className='tab' onClick={() => navigate('/categories')}>Categories</p>
+                    <p className='tab' onClick={() => navigate('/online')}>Play Online</p>
                     <div className='selected' style={styles}/>
                 </div>
                 <div className='control' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
@@ -129,7 +148,10 @@ const Header = ({notify, dummy}) => {
                         >
                             Sign Up
                         </button>
-                        <div className='avatar' style={{display: user ? 'flex' : 'none'}}>
+                        <div className='avatar' style={{display: user ? 'flex' : 'none'}} onClick={() => {
+                            setToExpand(false);
+                            setProfileExpand(true)
+                        }}>
                             <span>{user?.firstName[0]}{user?.lastName[0]}</span>
                         </div>
                     </div>
@@ -175,30 +197,55 @@ const Header = ({notify, dummy}) => {
                             setToExpand(false);
                             navigate('/categories');
                         }}>Categories</p>
+                        <p className='tab-mobile' onClick={() => {
+                            setToExpand(false);
+                            navigate('/online');
+                        }}>Play Online</p>
                     </div>
                     <div className='divider'>
                         <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
                     </div>
-                    <div className='button-mobile'>
-                        <button className='btn btn-secondary' onClick={() => handleSignUp(false)}
-                                style={{display: user ? 'none' : 'block'}}>Sign In
+                    <div className='button-mobile' style={{display: user ? 'none' : 'flex'}}>
+                        <button className='btn btn-secondary' onClick={() => handleSignUp(false)}>
+                            Sign In
                         </button>
-                        <button className='btn btn-primary' onClick={() => handleSignUp(true)}
-                                style={{display: user ? 'none' : 'block'}}>Sign Up
+                        <button className='btn btn-primary' onClick={() => handleSignUp(true)}>
+                            Sign Up
                         </button>
-                        <div className='tab-mobile' style={{display: user ? 'flex' : 'none'}}>
+                    </div>
+                    <div className='profile-mobile' style={!user ? {display: 'none'} : {}}>
+                        <div className='tab-mobile'>
                             <span>View My Profile</span>
                             <div className='avatar'>
                                 <span>{user?.firstName[0]}{user?.lastName[0]}</span>
                             </div>
                         </div>
+                        <div className='tab-mobile'>
+                            <span>Settings</span>
+                        </div>
+                        <div className='tab-mobile sign-out-mobile' onClick={handleSignOut}>
+                            <span>Sign Out</span>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div className={`profile-container ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`} style={{display: profileExpand ? 'block' : 'none'}} ref={profileRef}>
+                <div className='tab-mobile'>
+                    <span>Profile</span>
+                </div>
+                <div className='tab-mobile'>
+                    <span>Settings</span>
+                </div>
+                <div className='tab-mobile sign-out-mobile' onClick={handleSignOut}>
+                    <span>Sign Out</span>
                 </div>
             </div>
             <div className='modal-container' style={isModalOpen ? {display: 'block'} : {}}>
                 {isSignUp ?
-                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser} setIsModelOpen={setIsModalOpen}/> :
-                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser} setIsModalOpen={setIsModalOpen}/>
+                    <SignUpModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}
+                                 setIsModelOpen={setIsModalOpen}/> :
+                    <SignInModal modalRef={modalRef} setIsSignUp={setIsSignUp} setUser={setUser}
+                                 setIsModalOpen={setIsModalOpen}/>
                 }
             </div>
         </div>

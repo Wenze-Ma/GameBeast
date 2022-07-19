@@ -69,6 +69,9 @@ const UserService = {
                 }
                 return null;
             })
+    },
+    signOut: () => {
+        return axios.post(`${server}/users/signout`, {cookie: Cookies.get('game_on_star_cookie')})
     }
 }
 

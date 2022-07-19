@@ -111,7 +111,7 @@
     color: #3F4E61;
 }
 
-.tab-mobile:hover {
+.tab-mobile:not(.sign-out-mobile):hover {
     background-color: rgba(128, 128, 128, 0.1);;
 }
 
@@ -171,6 +171,17 @@
     justify-content: space-between;
 }
 
+.profile-mobile {
+    margin: 10px 10%;
+    display: none;
+    flex-direction: column;
+}
+
+.profile-mobile .tab-mobile {
+    flex-direction: row;
+    display: flex;
+}
+
 .button-mobile button {
     flex-grow: 1;
     margin: 0 10px;
@@ -183,6 +194,39 @@
 
 .buttons {
 
+}
+
+
+
+.profile-mobile .sign-out-mobile {
+    color: red;
+    /*padding: 5px 10px;*/
+    font-weight: normal;
+
+}
+
+.profile-container {
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    top: 64px;
+    right: 3%;
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 16%);
+    margin: 6px 0;
+    border-radius: 10px;
+}
+
+.profile-container .tab-mobile {
+    padding: 10px 20px
+}
+
+.profile-container .tab-mobile.sign-out-mobile {
+    color: red;
+    font-weight: normal;
+}
+
+.profile-container .tab-mobile:hover {
+    /*background-color: transparent;*/
 }
 
 @media (max-width: 900px) {
@@ -214,7 +258,7 @@
         display: none;
     }
 
-    .button-mobile {
+    .button-mobile, .profile-mobile {
         display: flex;
     }
 

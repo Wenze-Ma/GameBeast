@@ -1,7 +1,7 @@
 import Utilities from "../../Utilities/Utilities";
 import './modals.css'
 import {Divider} from "@mui/material";
-import GoogleLogin from "../Authentication/GoogleLogin";
+import MyGoogleLogin from "../Authentication/MyGoogleLogin";
 import {useState} from "react";
 import {EyeCloseIcon, EyeOpenIcon} from "../../Images/Icons/Icons";
 import UserService from "../../Service/UserService";
@@ -81,7 +81,7 @@ const SignUpModal = ({modalRef, setIsSignUp, setUser, setIsModelOpen}) => {
                 {/*    </div>*/}
                 {/*    <span>continue with google</span>*/}
                 {/*</button>*/}
-                <GoogleLogin setUser={setUser} setIsModalOpen={setIsModelOpen}/>
+                <MyGoogleLogin setUser={setUser} setIsModalOpen={setIsModelOpen}/>
 
             </div>
         </div>
