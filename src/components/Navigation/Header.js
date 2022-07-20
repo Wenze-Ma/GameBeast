@@ -152,7 +152,7 @@ const Header = ({notify, dummy}) => {
                             setToExpand(false);
                             setProfileExpand(true)
                         }}>
-                            <span>{user?.firstName[0]}{user?.lastName[0]}</span>
+                            <span>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</span>
                         </div>
                     </div>
 
@@ -217,7 +217,7 @@ const Header = ({notify, dummy}) => {
                         <div className='tab-mobile'>
                             <span>View My Profile</span>
                             <div className='avatar'>
-                                <span>{user?.firstName[0]}{user?.lastName[0]}</span>
+                                <span>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</span>
                             </div>
                         </div>
                         <div className='tab-mobile'>
