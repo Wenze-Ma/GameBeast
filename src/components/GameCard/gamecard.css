@@ -12,6 +12,7 @@
     margin: 0 var(--card-margin) 2%;
     /*width: 350px;*/
     width: calc(20% - 2 * var(--card-margin));
+    /*min-width: 350px;*/
     /*height: 380px;*/
     /*overflow: hidden;*/
     align-self: stretch;
@@ -19,15 +20,14 @@
     /*cursor: pointer;*/
 }
 
-.page-light-mode .card {
+.page-light-mode .card, .page-light-mode .room-card {
     box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
 }
 
-.page-dark-mode .card {
+.page-dark-mode .card, .page-dark-mode .room-card {
     box-shadow: 0 20px 27px 0 rgb(155 155 155 / 5%);
     background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-
+    border: none;
 }
 
 .card-header {
@@ -62,15 +62,17 @@
     font-family: 'Open Sans', sans-serif;
 }
 
-.page-dark-mode .card-title {
+.page-dark-mode .card-title, .page-dark-mode .room-description,
+.page-dark-mode .room-card-control {
     color: white;
 }
 
-.page-dark-mode .card-description {
+.page-dark-mode .card-description, .page-dark-mode .room-host {
     color: #AAB4BE;
 }
 
-.page-light-mode .card-title, .page-light-mode .card-description {
+.page-light-mode .card-title, .page-light-mode .card-description, .page-light-mode .room-description,
+.page-light-mode .room-card-control {
     color: #344767;
 }
 
@@ -87,6 +89,53 @@
     font-family: 'Open Sans', sans-serif;
     cursor: default;
 }
+
+.room-card {
+    border-radius: 10px;
+    height: 100px;
+    max-width: 1000px;
+    margin: 10px auto;
+    display: flex;
+    border: solid #f0f0f0 1px;
+    justify-content: space-between;
+    padding: 20px;
+    align-items: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.room-card-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.room-card-meta .room-name {
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.375;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.room-card-meta .room-host {
+    font-weight: bold;
+    font-size: 0.9rem;
+    line-height: 1.25;
+}
+
+.room-card-meta .room-description {
+    line-height: 1.625;
+    font-weight: 400;
+}
+
+.room-card-control {
+    display: flex;
+    align-items: center;
+}
+
+.room-card-control span {
+    margin: 0 10px;
+}
+
 
 @media (max-width: 900px) and (min-width: 550px) {
     .card {

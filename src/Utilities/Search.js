@@ -43,6 +43,11 @@ export const StyledInputBase = styled(InputBase)(({ theme }) => ({
                 width: '20ch',
             },
         },
+        '@media(max-width: 965px)': {
+            '&:focus': {
+                width: '12ch',
+            },
+        }
     },
 }));
 

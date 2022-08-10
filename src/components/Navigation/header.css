@@ -115,6 +115,14 @@
     background-color: rgba(128, 128, 128, 0.1);;
 }
 
+.sign-out-mobile:hover {
+    background-color: rgba(254, 1, 0, 0.7);
+}
+
+.tab-mobile.sign-out-mobile:hover {
+    color: white;
+}
+
 .menu-icon {
     border: solid gray 1px;
     display: none;
@@ -214,15 +222,16 @@
     box-shadow: 0 2px 12px 0 rgb(0 0 0 / 16%);
     margin: 6px 0;
     border-radius: 10px;
+    z-index: 1;
 }
 
 .profile-container .tab-mobile {
     padding: 10px 20px
 }
 
-.profile-container .tab-mobile.sign-out-mobile {
+.tab-mobile.sign-out-mobile {
     color: red;
-    font-weight: normal;
+    font-weight: bold;
 }
 
 .profile-container .tab-mobile:hover {

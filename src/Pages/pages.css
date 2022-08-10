@@ -15,6 +15,16 @@
     background-color: #FBFBFD;
 }
 
+.room-list {
+    display: block;
+}
+
+.room-create-button-container {
+    width: 100%;
+    max-width: 1040px;
+    margin: auto;
+}
+
 @media (max-width: 900px) {
     .card-list {
         margin: 0;

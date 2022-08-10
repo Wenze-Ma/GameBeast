@@ -27,9 +27,7 @@ const SignInModal = ({modalRef, setIsSignUp, setUser, setIsModalOpen}) => {
                     <label>Email</label>
                     <div className='input-group'>
                         <input type='email' placeholder='Email' aria-label='Email' className='form-control'
-                               required value={email} onChange={event => {
-                            setEmail(event.target.value)
-                        }}/>
+                               required value={email} onChange={event => setEmail(event.target.value)}/>
                     </div>
                     <label>Password</label>
                     <div className='input-group'>

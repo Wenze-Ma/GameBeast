@@ -15,23 +15,8 @@ import SignUpModal from "../Modals/SignUpModal";
 import SignInModal from "../Modals/SignInModal";
 import UserService from "../../Service/UserService";
 import Cookies from 'js-cookie';
+import {useOutsideHandler} from "../../Utilities/useOutSideHandler";
 
-const useOutsideHandler = (ref, toExpand, setToExpand) => {
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (ref.current && !ref.current.contains(event.target) && toExpand) {
-                setToExpand(false);
-            }
-        }
-
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [ref, setToExpand, toExpand]);
-}
 
 const Header = ({notify, dummy}) => {
 
@@ -75,7 +60,7 @@ const Header = ({notify, dummy}) => {
         styles = gamesSelector;
     } else if (url[url.length - 1] === 'categories') {
         styles = categoriesSelector;
-    } else if (url[url.length - 1] === 'online') {
+    } else if (url[url.length - 1] === 'online' && user) {
         styles = onlineSelector;
     } else {
         styles = {};
@@ -83,7 +68,10 @@ const Header = ({notify, dummy}) => {
 
     useEffect(() => {
         UserService.getUserByCookie(Cookies.get('game_on_star_cookie'))
-            .then(response => setUser(response));
+            .then(response => {
+                setUser(response);
+                Utilities.currentUser = response;
+            });
     }, []);
 
     const onMobileSearch = () => {
@@ -106,7 +94,11 @@ const Header = ({notify, dummy}) => {
         setToExpand(false);
         setProfileExpand(false);
         UserService.signOut().then(() => {
+            Cookies.remove('game_on_star_cookie');
             setUser(null);
+            if (url.includes('online')) {
+                navigate('/');
+            }
         });
     }
 
@@ -122,7 +114,9 @@ const Header = ({notify, dummy}) => {
                 <div className='tabs'>
                     <p className='tab' onClick={() => navigate('/games')}>All Games</p>
                     <p className='tab' onClick={() => navigate('/categories')}>Categories</p>
-                    <p className='tab' onClick={() => navigate('/online')}>Play Online</p>
+                    <p className='tab' onClick={() => {
+                        if (user) navigate('/online');
+                    }}>Play Online</p>
                     <div className='selected' style={styles}/>
                 </div>
                 <div className='control' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
@@ -198,8 +192,10 @@ const Header = ({notify, dummy}) => {
                             navigate('/categories');
                         }}>Categories</p>
                         <p className='tab-mobile' onClick={() => {
-                            setToExpand(false);
-                            navigate('/online');
+                            if (user) {
+                                setToExpand(false);
+                                navigate('/online');
+                            }
                         }}>Play Online</p>
                     </div>
                     <div className='divider'>
