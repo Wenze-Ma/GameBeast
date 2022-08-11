@@ -1,7 +1,8 @@
 import './gamecard.css';
 import {useNavigate} from "react-router-dom";
+import RoomService from "../../Service/RoomService";
 
-const RoomCard = ({room, socket}) => {
+const RoomCard = ({room, user}) => {
     const navigate = useNavigate();
     return (
         <div className='room-card'>
@@ -11,9 +12,14 @@ const RoomCard = ({room, socket}) => {
                 <span className='room-description'>{room.description || 'This room has no description'}</span>
             </div>
             <div className='room-card-control'>
-                <span>1 / {room.capacity || 6}</span>
+                <span>{room.members.length} / {room.capacity || 6}</span>
                 <button className='btn btn-info' onClick={() => {
-                    navigate(room._id);
+                    RoomService.joinRoom(room._id, user.email)
+                        .then(response => {
+                            if (response.data.success) {
+                                navigate(room._id);
+                            }
+                        });
                 }}>Join</button>
             </div>
         </div>

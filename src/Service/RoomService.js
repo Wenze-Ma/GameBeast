@@ -7,17 +7,29 @@ const RoomService = {
         axios.get(`${server}/rooms/all`)
             .then(response => {
                 setRooms(response.data.rooms);
-            })
+            });
     },
-    createRooms: (_id, roomName, capacity, description) => {
+    getRoom: (roomId) => {
+       return axios.get(`${server}/rooms/getRoom/${roomId}`)
+    },
+    createRooms: (email, roomName, capacity, description) => {
         const room = {
-            _id: _id,
+            host: email,
             roomName: roomName,
             capacity: capacity,
             description: description,
         };
         return axios.post(`${server}/rooms/create`, room);
-    }
+    },
+    joinRoom: (roomId, email) => {
+        return axios.post(`${server}/rooms/join`, {id: roomId, email: email});
+    },
+    leaveRoom: (roomId, email) => {
+        return axios.post(`${server}/rooms/leave`, {id: roomId, email: email});
+    },
+    deleteRoom: (roomId) => {
+        return axios.delete(`${server}/rooms/delete/${roomId}`);
+    },
 }
 
 export default RoomService;

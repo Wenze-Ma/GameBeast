@@ -13,7 +13,7 @@ import { UNSAFE_NavigationContext as NavigationContext } from 'react-router-dom'
  * @param  when
  * @see https://reactrouter.com/api/useBlocker
  */
-export function useBlocker( blocker, when = true , next) {
+export function useBlocker( blocker, when ) {
     const { navigator } = useContext( NavigationContext );
 
     useEffect( () => {
@@ -27,11 +27,9 @@ export function useBlocker( blocker, when = true , next) {
                     // through before retrying it. TODO: Figure out how to re-enable
                     // this block if the transition is cancelled for some reason.
                     unblock();
-                    next();
                     tx.retry();
                 },
             };
-
             blocker( autoUnblockingTx );
         } );
         return unblock;
@@ -43,7 +41,7 @@ export function useBlocker( blocker, when = true , next) {
  * @param  message
  * @param  when
  */
-export function usePrompt( message, when = true , next) {
+export function usePrompt( message, when = true) {
     const blocker = useCallback(
         ( tx ) => {
             // eslint-disable-next-line no-alert
@@ -52,5 +50,5 @@ export function usePrompt( message, when = true , next) {
         [ message ]
     );
 
-    useBlocker( blocker, when , next);
+    useBlocker( blocker, when );
 }

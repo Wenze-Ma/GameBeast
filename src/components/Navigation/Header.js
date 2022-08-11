@@ -16,6 +16,8 @@ import SignInModal from "../Modals/SignInModal";
 import UserService from "../../Service/UserService";
 import Cookies from 'js-cookie';
 import {useOutsideHandler} from "../../Utilities/useOutSideHandler";
+import {toast} from "react-toastify";
+import MyToastContainer from "../../Utilities/MyToastContainer";
 
 
 const Header = ({notify, dummy}) => {
@@ -93,7 +95,12 @@ const Header = ({notify, dummy}) => {
     const handleSignOut = () => {
         setToExpand(false);
         setProfileExpand(false);
+        if (url.includes('online') && url[url.length - 1] !== 'online') {
+            toast.info('You are in an online game. Please leave the room first.');
+            return;
+        }
         UserService.signOut().then(() => {
+            toast.info('Sign Out Succeeded');
             Cookies.remove('game_on_star_cookie');
             setUser(null);
             if (url.includes('online')) {
@@ -104,6 +111,7 @@ const Header = ({notify, dummy}) => {
 
     return (
         <div ref={wrapperRef}>
+            <MyToastContainer/>
             <div className={`header ${Utilities.isDarkMode ? 'dark-mode' : 'light-mode'}`}>
                 <div className='title' style={{display: isMobileSearchFocused ? 'none' : 'flex'}}>
                     <div className='menu-icon' onClick={() => setToExpand(!toExpand)}>
@@ -116,6 +124,7 @@ const Header = ({notify, dummy}) => {
                     <p className='tab' onClick={() => navigate('/categories')}>Categories</p>
                     <p className='tab' onClick={() => {
                         if (user) navigate('/online');
+                        else toast.info('Please log in first');
                     }}>Play Online</p>
                     <div className='selected' style={styles}/>
                 </div>
@@ -195,13 +204,15 @@ const Header = ({notify, dummy}) => {
                             if (user) {
                                 setToExpand(false);
                                 navigate('/online');
+                            } else {
+                                toast.info('Please log in first');
                             }
                         }}>Play Online</p>
                     </div>
                     <div className='divider'>
                         <Divider variant='fullWidth' color={Utilities.isDarkMode ? 'white' : '#E0E0E0'}/>
                     </div>
-                    <div className='button-mobile' style={{display: user ? 'none' : 'flex'}}>
+                    <div className='button-mobile' style={user ? {display: 'none'} : {}}>
                         <button className='btn btn-secondary' onClick={() => handleSignUp(false)}>
                             Sign In
                         </button>

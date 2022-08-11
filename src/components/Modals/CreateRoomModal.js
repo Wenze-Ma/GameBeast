@@ -16,13 +16,13 @@ const CreateRoomModal = ({modalRef}) => {
         UserService.getUserByCookie(Cookies.get('game_on_star_cookie'))
             .then(user => {
                 setUser(user);
-                setRoomName(`${user.firstName || user.lastName || user.email || '???'}'s Room`);
+                setRoomName(`${user?.firstName || user?.lastName || user?.email || '???'}'s Room`);
             });
     }, [])
 
     const handleOnSubmit = (event) => {
         event.preventDefault();
-        RoomService.createRooms(user._id, roomName, roomCapacity, description)
+        RoomService.createRooms(user.email, roomName, roomCapacity, description)
             .then((response) => navigate(response.data.room._id));
     }
 

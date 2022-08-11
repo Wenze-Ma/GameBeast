@@ -19,6 +19,11 @@
     display: block;
 }
 
+.hint {
+    max-width: 1036px;
+    margin: 10px auto;
+}
+
 .room-create-button-container {
     width: 100%;
     max-width: 1040px;
