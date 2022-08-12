@@ -8,6 +8,7 @@ class Utilities {
     }
 
     static currentUser = null;
+    static socket = null;
 }
 
 export default Utilities;

@@ -1,7 +1,7 @@
 import './header.css'
 import Utilities from "../../Utilities/Utilities";
 import DarkModeSwitch from "../../Utilities/DarkModeSwitch";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
     Search,
     SearchIconWrapper,
@@ -50,8 +50,8 @@ const Header = ({notify, dummy}) => {
         display: 'block',
     };
     const onlineSelector = {
-        width: '99px',
-        left: 'calc(315px + 8%)',
+        width: '96px',
+        left: 'calc(318px + 8%)',
         display: 'block',
     }
     const url = window.location.href.split('/');

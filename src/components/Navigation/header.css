@@ -103,6 +103,10 @@
     justify-content: space-between;
 }
 
+.profile-container .tab-mobile {
+    border-radius: 0;
+}
+
 .dark-mode2 .tab-mobile {
     color: white;
 }
@@ -223,6 +227,7 @@
     margin: 6px 0;
     border-radius: 10px;
     z-index: 1;
+    padding: 12px 0;
 }
 
 .profile-container .tab-mobile {

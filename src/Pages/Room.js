@@ -2,14 +2,13 @@ import Utilities from "../Utilities/Utilities";
 import {server} from "../config";
 import {io} from "socket.io-client";
 import {useEffect, useRef, useState} from "react";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Cookies from 'js-cookie';
 import UserService from "../Service/UserService";
-import {useBlocker, usePrompt} from "../Utilities/useBlocker";
 import RoomService from "../Service/RoomService";
-import {useCallbackPrompt} from "../Utilities/useCallbackPrompt";
 import LeaveModal from "../components/Modals/LeaveModal";
 import {useOutsideHandler} from "../Utilities/useOutSideHandler";
+import {useCallbackPrompt} from "../Utilities/useCallbackPrompt";
 
 const Room = () => {
     const params = useParams();
@@ -19,8 +18,8 @@ const Room = () => {
     const [currentUsers, setCurrentUsers] = useState([]);
     const [room, setRoom] = useState(null);
     const modalRef = useRef(null);
-    const [showDialog, setShowDialog] = useState(true);
-    const [showPrompt, setShowPrompt, confirmNavigation, cancelNavigation] = useCallbackPrompt(showDialog, user, room);
+    // useCallbackPrompt(false, user, room);
+    const [showPrompt, setShowPrompt] = useState(false);
     useOutsideHandler(modalRef, showPrompt, setShowPrompt);
 
 
@@ -35,19 +34,25 @@ const Room = () => {
                         socket.current.emit('join-room', {roomId: params.roomId, email: user.email});
                     }
                 } else {
-                    setShowDialog(false);
+                    navigate('/');
                 }
             });
+    }, [navigate, params.roomId]);
+
+    useEffect(() => {
         RoomService.getRoom(params.roomId)
             .then(response => {
                 if (!response.data.room) {
-                    setShowDialog(false);
                     navigate('/online');
+                    socket.current.disconnect();
+                } else if (user && !response.data.room.members.includes(user.email)) {
+                    navigate('/online');
+                    socket.current.disconnect();
                 } else {
                     setRoom(response.data.room);
                 }
             });
-    }, [navigate, params.roomId]);
+    }, [navigate, params.roomId, user]);
 
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
@@ -70,16 +75,18 @@ const Room = () => {
     });
 
     const onLeaveRoom = () => {
-        socket.current.emit('leave-room', {roomId: room._id, email: user.email});
-        if (room.host === user.email) {
-            RoomService.deleteRoom(room._id)
-                .then(() => {
-                    navigate('/online')
-                });
-        } else {
-            RoomService.leaveRoom(room._id, user.email)
-                .then(() => navigate('/online'));
-        }
+        // socket.current.emit('leave-room', {roomId: room._id, email: user.email});
+        socket.current.disconnect();
+        navigate('/online');
+        // if (room.host === user.email) {
+        //     RoomService.deleteRoom(room._id)
+        //         .then(() => {
+        //             navigate('/online');
+        //         });
+        // } else {
+        //     RoomService.leaveRoom(room._id, user.email)
+        //         .then(() => navigate('/online'));
+        // }
     }
 
     // window.addEventListener('beforeunload', (ev) => {
@@ -92,11 +99,11 @@ const Room = () => {
     return (
         <div>
             <div className='modal-container' style={showPrompt ? {display: 'block'} : {}}>
-                <LeaveModal cancelNavigation={cancelNavigation} confirmNavigation={confirmNavigation}
-                            modalRef={modalRef} isHost={room?.host === user?.email} onLeaveRoom={onLeaveRoom}/>
+                <LeaveModal cancelNavigation={() => setShowPrompt(false)} confirmNavigation={onLeaveRoom}
+                            modalRef={modalRef} isHost={room?.host === user?.email}/>
             </div>
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
-                <button className='btn btn-secondary' onClick={() => navigate('/online')}>Leave Room</button>
+                <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
                 <div>
                     <p>current users: {currentUsers}</p>
                     <input value={text} onChange={event => setText(event.target.value)}/>

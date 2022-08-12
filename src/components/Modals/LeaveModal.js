@@ -1,6 +1,6 @@
 import Utilities from "../../Utilities/Utilities";
 
-const LeaveModal = ({cancelNavigation, confirmNavigation, modalRef, isHost, onLeaveRoom}) => {
+const LeaveModal = ({cancelNavigation, confirmNavigation, modalRef, isHost}) => {
     return (
         <div className={`modal ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`} ref={modalRef}>
             <h3 className='modal-title' style={Utilities.isDarkMode ? {color: 'white'} : {}}>Are you sure to leave?</h3>
@@ -12,10 +12,7 @@ const LeaveModal = ({cancelNavigation, confirmNavigation, modalRef, isHost, onLe
                         onClick={cancelNavigation}>Cancel
                 </button>
                 <button className='btn btn-danger modal-button' style={{width: '100px', margin: '0 10px'}}
-                        onClick={() => {
-                            confirmNavigation();
-                            onLeaveRoom();
-                        }}>Leave
+                        onClick={confirmNavigation}>Leave
                 </button>
             </div>
         </div>
