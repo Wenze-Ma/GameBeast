@@ -81,9 +81,12 @@ const Room = () => {
                 .then(() => navigate('/online'));
         }
     }
+
     // window.addEventListener('beforeunload', (ev) => {
     //     ev.preventDefault();
-    //     console.log("HIHIHII")
+    //     ev.returnValue = '';
+    //     console.log("HIHIHII");
+    //     onLeaveRoom();
     // })
 
     return (
