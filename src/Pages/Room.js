@@ -72,9 +72,7 @@ const Room = () => {
                 }
             });
             socket.current.on('leave-room', userId => {
-                const index = currentUsers.indexOf(userId);
-                currentUsers.splice(index, 1);
-                setCurrentUsers(currentUsers);
+                setCurrentUsers(currentUsers.filter(current => current !== userId));
             });
             return () => {
                 socket.current.off('receive-message');
@@ -92,8 +90,6 @@ const Room = () => {
                 navigate('/online');
             });
     }
-
-    console.log(currentUsers);
 
     return (
         <div>
