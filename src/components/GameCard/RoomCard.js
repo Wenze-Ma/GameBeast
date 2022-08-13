@@ -30,8 +30,7 @@ const RoomCard = ({room, user, setJoined}) => {
                                 if (response.data.success) {
                                     navigate(room._id);
                                 }
-                            })
-                            .catch(error => {
+                            }).catch(() => {
                                 toast.error('Failed joining in');
                             });
                     }

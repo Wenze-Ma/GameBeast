@@ -47,10 +47,12 @@ const Room = () => {
                     socket.current.disconnect();
                 } else {
                     setRoom(response.data.room);
-                    setCurrentUsers(response.data.room.members);
+                    if (currentUsers.length === 0) {
+                        setCurrentUsers(response.data.room.members);
+                    }
                 }
             });
-    }, [navigate, params.roomId, user]);
+    }, [currentUsers.length, navigate, params.roomId, user]);
 
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
@@ -67,11 +69,13 @@ const Room = () => {
                 setMessages([...messages, {sender: userId, text: message}]);
             });
             socket.current.on('join-room', userId => {
+                console.log("Join", userId)
                 if (!currentUsers.includes(userId)) {
                     setCurrentUsers([...currentUsers, userId]);
                 }
             });
             socket.current.on('leave-room', userId => {
+                console.log("Leave")
                 setCurrentUsers(currentUsers.filter(current => current !== userId));
             });
             return () => {
