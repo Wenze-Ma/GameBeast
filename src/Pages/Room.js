@@ -9,6 +9,7 @@ import RoomService from "../Service/RoomService";
 import LeaveModal from "../components/Modals/LeaveModal";
 import {useOutsideHandler} from "../Utilities/useOutSideHandler";
 import {useCallbackPrompt} from "../Utilities/useCallbackPrompt";
+import MyToastContainer from "../Utilities/MyToastContainer";
 
 const Room = () => {
     const params = useParams();
@@ -30,8 +31,7 @@ const Room = () => {
                     setUser(user);
                     if (!socket.current) {
                         socket.current = io(server);
-                        socket.current.emit('add-user', user.email);
-                        socket.current.emit('join-room', {roomId: params.roomId, email: user.email});
+                        socket.current.emit('join-room', params.roomId, user.email);
                     }
                 } else {
                     navigate('/');
@@ -45,11 +45,9 @@ const Room = () => {
                 if (!response.data.room) {
                     navigate('/online');
                     socket.current.disconnect();
-                } else if (user && !response.data.room.members.includes(user.email)) {
-                    navigate('/online');
-                    socket.current.disconnect();
                 } else {
                     setRoom(response.data.room);
+                    setCurrentUsers(response.data.room.members);
                 }
             });
     }, [navigate, params.roomId, user]);
@@ -57,62 +55,61 @@ const Room = () => {
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
     const handleClick = () => {
-        if (text.replace(/\s/g, '')) {
-            setMessages([...messages, {sender: user.email, text: text}]);
-            socket.current.emit('send-msg', {userId: user.email, text: text});
+        if (text.replace(/\s/g, '') && room && user) {
+            // setMessages([...messages, {sender: user.email, text: text}]);
+            socket.current.emit('send-message', room._id, user.email, text);
         }
     }
 
     useEffect(() => {
         if (socket.current) {
-            socket.current.on('receive-msg', message => {
-                setMessages([...messages, {sender: message.sender, text: message.text}]);
+            socket.current.on('receive-message', (userId, message) => {
+                setMessages([...messages, {sender: userId, text: message}]);
             });
-            socket.current.on('joined', email => {
-                setCurrentUsers([...currentUsers, email]);
+            socket.current.on('join-room', userId => {
+                if (!currentUsers.includes(userId)) {
+                    setCurrentUsers([...currentUsers, userId]);
+                }
             });
+            socket.current.on('leave-room', userId => {
+                const index = currentUsers.indexOf(userId);
+                currentUsers.splice(index, 1);
+                setCurrentUsers(currentUsers);
+            });
+            return () => {
+                socket.current.off('receive-message');
+                socket.current.off('join-room');
+                socket.current.off('leave-room');
+            }
         }
     });
 
     const onLeaveRoom = () => {
-        // socket.current.emit('leave-room', {roomId: room._id, email: user.email});
-        socket.current.disconnect();
-        navigate('/online');
-        // if (room.host === user.email) {
-        //     RoomService.deleteRoom(room._id)
-        //         .then(() => {
-        //             navigate('/online');
-        //         });
-        // } else {
-        //     RoomService.leaveRoom(room._id, user.email)
-        //         .then(() => navigate('/online'));
-        // }
+        RoomService.leaveRoom(room._id, user.email)
+            .then(() => {
+                socket.current.emit('leave-room', room._id, user.email);
+                socket.current.disconnect();
+                navigate('/online');
+            });
     }
 
-    // window.addEventListener('beforeunload', (ev) => {
-    //     ev.preventDefault();
-    //     ev.returnValue = '';
-    //     console.log("HIHIHII");
-    //     onLeaveRoom();
-    // })
+    console.log(currentUsers);
 
     return (
         <div>
             <div className='modal-container' style={showPrompt ? {display: 'block'} : {}}>
                 <LeaveModal cancelNavigation={() => setShowPrompt(false)} confirmNavigation={onLeaveRoom}
-                            modalRef={modalRef} isHost={room?.host === user?.email}/>
+                            modalRef={modalRef} room={room} user={user}/>
             </div>
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
                 <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
                 <div>
-                    <p>current users: {currentUsers}</p>
+                    <p>current users: {currentUsers.join(', ')}</p>
                     <input value={text} onChange={event => setText(event.target.value)}/>
                     <button onClick={handleClick}>send</button>
-                    <div style={{width: 1000, height: 1000}}>
-                        {
-                            messages.map((message, id) => <p key={id}>{message.sender}: {message.text}</p>)
-                        }
-                    </div>
+                    {
+                        messages.map((message, id) => <p key={id}>{message.sender}: {message.text}</p>)
+                    }
                 </div>
             </div>
         </div>
