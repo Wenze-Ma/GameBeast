@@ -30,6 +30,9 @@ const RoomService = {
     deleteRoom: (roomId) => {
         return axios.delete(`${server}/rooms/delete/${roomId}`);
     },
+    startGame: (roomId, gameData) => {
+        return axios.post(`${server}/rooms/start`, {roomId: roomId, gameData: gameData});
+    },
 }
 
 export default RoomService;

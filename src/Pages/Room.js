@@ -12,6 +12,8 @@ import GameCardMini from "../Components/GameCard/GameCardMini";
 import UserAvatar from "../Components/Avatar/UserAvatar";
 import {toast} from "react-toastify";
 import {allGames} from "./AllGames";
+import TicTacToe from "./Games/TicTacToe";
+import TicTacToeOnline from "./Games/TicTacToeOnline";
 
 const Room = () => {
     const params = useParams();
@@ -23,6 +25,7 @@ const Room = () => {
     const modalRef = useRef(null);
     const [gameSelected, setGameSelected] = useState(-1);
     const [showPrompt, setShowPrompt] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
     useOutsideHandler(modalRef, showPrompt, setShowPrompt);
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
@@ -58,6 +61,7 @@ const Room = () => {
                 } else {
                     setRoom(response.data.room);
                     setGameSelected(response.data.room.gameSelected);
+                    setGameStarted(response.data.room.gameStarted);
                     if (currentUsers.length === 0) {
                         setCurrentUsers(response.data.room.members);
                     }
@@ -73,21 +77,31 @@ const Room = () => {
             socket.current.on('join-room', userId => {
                 console.log("Join", userId)
                 if (!currentUsers.includes(userId)) {
+                    if (userId === user?.email) {
+                        toast.info('You have joined the room');
+                    } else {
+                        toast.info(userId + ' has joined the room');
+                    }
                     setCurrentUsers([...currentUsers, userId]);
                 }
             });
             socket.current.on('leave-room', userId => {
                 console.log("Leave")
+                toast.info(userId + ' leaved the room');
                 setCurrentUsers(currentUsers.filter(current => current !== userId));
             });
             socket.current.on('game-select', index => {
                 setGameSelected(index);
+            });
+            socket.current.on('game-start', () => {
+                setGameStarted(true);
             });
             return () => {
                 socket.current.off('receive-message');
                 socket.current.off('join-room');
                 socket.current.off('leave-room');
                 socket.current.off('game-select');
+                socket.current.off('tic-tac-toe-place-chess');
             }
         }
     });
@@ -97,6 +111,7 @@ const Room = () => {
             .then(() => {
                 socket.current.emit('leave-room', room._id, user.email);
                 socket.current.disconnect();
+                toast.info('You have leaved the room');
                 navigate('/online');
             });
     }
@@ -116,8 +131,15 @@ const Room = () => {
             if (user.email === room.host) {
                 if (gameSelected === -1) {
                     toast.info('Please select a game first');
+                } else if (allGames[gameSelected].requiredPlayerNumber !== room.members.length) {
+                    toast.info('This game requires ' + allGames[gameSelected].requiredPlayerNumber + ' players');
                 } else {
-
+                    RoomService.startGame(room._id, allGames[gameSelected].gameData)
+                        .then(response => {
+                            if (response.data.success) {
+                                socket.current.emit('game-start', room._id);
+                            }
+                        });
                 }
             } else {
                 toast.info('Only host can start the game');
@@ -134,21 +156,27 @@ const Room = () => {
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
                 <div className='control-container'>
                     <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
-                    <button className='btn btn-primary' style={{marginLeft: 20}} onClick={handleOnStart}>Start Game</button>
+                    <button className='btn btn-primary'
+                            style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}
+                            onClick={handleOnStart}>Start Game
+                    </button>
                 </div>
                 <div className='room-container'>
                     <div className='users-container'>
                         {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}
                     </div>
-                    <div className='game-selection-container'>
-                        <div className='card-list'>
-                            {allGames.map((game, index) =>
-                                <GameCardMini title='Tic Tac Toe' key={index}
-                                              src='https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg'
-                                              isSelected={gameSelected === index} select={() => handleOnSelect(index)}/>
-                            )}
+                    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user}/> :
+                        <div className='game-selection-container'>
+                            <div className='card-list'>
+                                {allGames.map((game, index) =>
+                                    <GameCardMini game={game} key={index}
+                                                  isSelected={gameSelected === index}
+                                                  select={() => handleOnSelect(index)}/>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    }
+                    {/*<TicTacToeOnline room={room} socket={socket} user={user}/>*/}
                 </div>
                 {/*<div>*/}
                 {/*    <p>current users: {currentUsers.join(', ')}</p>*/}

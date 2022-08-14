@@ -3,11 +3,11 @@ import './tictactoe.css'
 import {useState} from "react";
 import {OIcon, XIcon} from "../../Images/Icons/Icons";
 
-const winConditions = [
+export const winConditions = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]
 ]
 
-const GAME_STATE = {
+export const GAME_STATE = {
     'X_TURN': 'X Turn',
     'O_TURN': 'O Turn',
     'X_WIN': 'X Wins',
@@ -15,13 +15,13 @@ const GAME_STATE = {
     'TIE': 'Draw',
 }
 
-const map = {
+export const map = {
     '': '',
     'X': <XIcon/>,
     'O': <OIcon/>,
 }
 
-const getResultColor = (gameState) => {
+export const getResultColor = (gameState) => {
     switch (gameState) {
         case GAME_STATE.X_WIN:
             return ' X';

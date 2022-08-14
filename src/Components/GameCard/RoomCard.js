@@ -27,7 +27,10 @@ const RoomCard = ({room, user, setJoined}) => {
                     } else {
                         RoomService.joinRoom(room._id, user.email)
                             .then(response => {
-                                if (response.data.success) {
+                                if (response.data.room.gameStarted) {
+                                    toast.info('This room is currently in a game. Please try again later.')
+                                } else if (response.data.success) {
+                                    toast.info('You have joined the room');
                                     navigate(room._id);
                                 }
                             }).catch(() => {
