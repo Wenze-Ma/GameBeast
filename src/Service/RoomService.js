@@ -33,6 +33,9 @@ const RoomService = {
     startGame: (roomId, gameData) => {
         return axios.post(`${server}/rooms/start`, {roomId: roomId, gameData: gameData});
     },
+    endGame: (roomId) => {
+        return axios.post(`${server}/rooms/end`, {roomId: roomId});
+    }
 }
 
 export default RoomService;

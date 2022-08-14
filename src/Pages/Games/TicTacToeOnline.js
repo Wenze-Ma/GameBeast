@@ -1,8 +1,9 @@
 import './tictactoe.css'
 import {useEffect, useState} from "react";
 import {GAME_STATE, getResultColor, map, winConditions} from "./TicTacToe";
+import RoomService from "../../Service/RoomService";
 
-const TicTacToe = ({room, user, socket}) => {
+const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
     const [board, setBoard] = useState(Array(9).fill(''));
     const [gameState, setGameState] = useState(GAME_STATE.X_TURN);
     const [gameStateMap, setGameStateMap] = useState({});
@@ -43,7 +44,7 @@ const TicTacToe = ({room, user, socket}) => {
     });
 
     const handleOnClickCell = (index) => {
-        if (board[index] !== '' && lock) return;
+        if (board[index] !== '' || lock) return;
         switch (gameState) {
             case GAME_STATE.X_TURN:
                 if (room.members[0] === user.email) {
@@ -93,8 +94,21 @@ const TicTacToe = ({room, user, socket}) => {
 
     if (isGameOver) {
         setTimeout(() => {
-            setBoard(Array(9).fill(''));
-            setGameState(GAME_STATE.X_TURN);
+            // if (room) {
+            //     RoomService.endGame(room._id)
+            //         .then(response => {
+            //             if (response.data.success) {
+            //                 setRoom(response.data.roomId);
+            //                 setGameStarted(false);
+            //             }
+            //         });
+            // }
+            if (socket?.current && room?.host === user?.email) {
+                RoomService.endGame(room._id)
+                    .then(() => {
+                        socket.current.emit('end-game', room._id);
+                    });
+            }
         }, 1000);
     }
 
@@ -124,4 +138,4 @@ const TicTacToe = ({room, user, socket}) => {
     )
 }
 
-export default TicTacToe;
+export default TicTacToeOnline;

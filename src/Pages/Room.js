@@ -96,12 +96,16 @@ const Room = () => {
             socket.current.on('game-start', () => {
                 setGameStarted(true);
             });
+            socket.current.on('end-game', () => {
+                setGameStarted(false);
+            });
             return () => {
                 socket.current.off('receive-message');
                 socket.current.off('join-room');
                 socket.current.off('leave-room');
                 socket.current.off('game-select');
                 socket.current.off('tic-tac-toe-place-chess');
+                socket.current.off('end-game');
             }
         }
     });
@@ -165,7 +169,7 @@ const Room = () => {
                     <div className='users-container'>
                         {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}
                     </div>
-                    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user}/> :
+                    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom} setGameStarted={setGameStarted}/> :
                         <div className='game-selection-container'>
                             <div className='card-list'>
                                 {allGames.map((game, index) =>
