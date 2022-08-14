@@ -6,6 +6,7 @@ const TicTacToe = ({room, user, socket}) => {
     const [board, setBoard] = useState(Array(9).fill(''));
     const [gameState, setGameState] = useState(GAME_STATE.X_TURN);
     const [gameStateMap, setGameStateMap] = useState({});
+    const [lock, setLock] = useState(false);
     useEffect(() => {
         if (room && user && socket) {
             if (room.members[0] === user.email) {
@@ -32,6 +33,7 @@ const TicTacToe = ({room, user, socket}) => {
     useEffect(() => {
         if (socket.current) {
             socket.current.on('tic-tac-toe-place-chess', (value, index, newState) => {
+                setLock(false);
                 board[index] = value;
                 setGameState(GAME_STATE[newState]);
                 setBoard(board);
@@ -41,12 +43,13 @@ const TicTacToe = ({room, user, socket}) => {
     });
 
     const handleOnClickCell = (index) => {
-        if (board[index] !== '') return;
+        if (board[index] !== '' && lock) return;
         switch (gameState) {
             case GAME_STATE.X_TURN:
                 if (room.members[0] === user.email) {
                     if (socket.current) {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'X', index, 'O_TURN');
+                        setLock(true)
                     }
                 }
                 break;
@@ -54,6 +57,7 @@ const TicTacToe = ({room, user, socket}) => {
                 if (room.members[1] === user.email) {
                     if (socket.current) {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'O', index, 'X_TURN');
+                        setLock(true);
                     }
                 }
                 break;
