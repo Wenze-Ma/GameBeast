@@ -73,6 +73,9 @@ const UserService = {
     },
     signOut: () => {
         return axios.post(`${server}/users/signout`, {cookie: Cookies.get('game_on_star_cookie')})
+    },
+    getUserByEmail: (email) => {
+        return axios.get(`${server}/users/get/${email}`);
     }
 }
 

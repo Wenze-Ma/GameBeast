@@ -1,4 +1,4 @@
-import Header from "./components/Navigation/Header";
+import Header from "./Components/Navigation/Header";
 import Utilities from "./Utilities/Utilities";
 import {useState} from "react";
 import {Route, BrowserRouter, Routes} from "react-router-dom";

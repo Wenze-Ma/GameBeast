@@ -6,10 +6,12 @@ import {useNavigate, useParams} from "react-router-dom";
 import Cookies from 'js-cookie';
 import UserService from "../Service/UserService";
 import RoomService from "../Service/RoomService";
-import LeaveModal from "../components/Modals/LeaveModal";
+import LeaveModal from "../Components/Modals/LeaveModal";
 import {useOutsideHandler} from "../Utilities/useOutSideHandler";
-import {useCallbackPrompt} from "../Utilities/useCallbackPrompt";
-import MyToastContainer from "../Utilities/MyToastContainer";
+import GameCardMini from "../Components/GameCard/GameCardMini";
+import UserAvatar from "../Components/Avatar/UserAvatar";
+import {toast} from "react-toastify";
+import {allGames} from "./AllGames";
 
 const Room = () => {
     const params = useParams();
@@ -19,9 +21,17 @@ const Room = () => {
     const [currentUsers, setCurrentUsers] = useState([]);
     const [room, setRoom] = useState(null);
     const modalRef = useRef(null);
-    // useCallbackPrompt(false, user, room);
+    const [gameSelected, setGameSelected] = useState(-1);
     const [showPrompt, setShowPrompt] = useState(false);
     useOutsideHandler(modalRef, showPrompt, setShowPrompt);
+    const [text, setText] = useState('');
+    const [messages, setMessages] = useState([]);
+    const handleClick = () => {
+        if (text.replace(/\s/g, '') && room && user) {
+            // setMessages([...messages, {sender: user.email, text: text}]);
+            socket.current.emit('send-message', room._id, user.email, text);
+        }
+    }
 
 
     useEffect(() => {
@@ -47,21 +57,13 @@ const Room = () => {
                     socket.current.disconnect();
                 } else {
                     setRoom(response.data.room);
+                    setGameSelected(response.data.room.gameSelected);
                     if (currentUsers.length === 0) {
                         setCurrentUsers(response.data.room.members);
                     }
                 }
             });
     }, [currentUsers.length, navigate, params.roomId, user]);
-
-    const [text, setText] = useState('');
-    const [messages, setMessages] = useState([]);
-    const handleClick = () => {
-        if (text.replace(/\s/g, '') && room && user) {
-            // setMessages([...messages, {sender: user.email, text: text}]);
-            socket.current.emit('send-message', room._id, user.email, text);
-        }
-    }
 
     useEffect(() => {
         if (socket.current) {
@@ -78,10 +80,14 @@ const Room = () => {
                 console.log("Leave")
                 setCurrentUsers(currentUsers.filter(current => current !== userId));
             });
+            socket.current.on('game-select', index => {
+                setGameSelected(index);
+            });
             return () => {
                 socket.current.off('receive-message');
                 socket.current.off('join-room');
                 socket.current.off('leave-room');
+                socket.current.off('game-select');
             }
         }
     });
@@ -95,6 +101,30 @@ const Room = () => {
             });
     }
 
+    const handleOnSelect = (index) => {
+        if (socket.current && room && user) {
+            if (user.email === room.host) {
+                socket.current.emit('game-select', room._id, index);
+            } else if (gameSelected !== index) {
+                toast.info('Only host can select the game');
+            }
+        }
+    };
+
+    const handleOnStart = () => {
+        if (socket.current && room && user) {
+            if (user.email === room.host) {
+                if (gameSelected === -1) {
+                    toast.info('Please select a game first');
+                } else {
+
+                }
+            } else {
+                toast.info('Only host can start the game');
+            }
+        }
+    }
+
     return (
         <div>
             <div className='modal-container' style={showPrompt ? {display: 'block'} : {}}>
@@ -102,15 +132,32 @@ const Room = () => {
                             modalRef={modalRef} room={room} user={user}/>
             </div>
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
-                <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
-                <div>
-                    <p>current users: {currentUsers.join(', ')}</p>
-                    <input value={text} onChange={event => setText(event.target.value)}/>
-                    <button onClick={handleClick}>send</button>
-                    {
-                        messages.map((message, id) => <p key={id}>{message.sender}: {message.text}</p>)
-                    }
+                <div className='control-container'>
+                    <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
+                    <button className='btn btn-primary' style={{marginLeft: 20}} onClick={handleOnStart}>Start Game</button>
                 </div>
+                <div className='room-container'>
+                    <div className='users-container'>
+                        {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}
+                    </div>
+                    <div className='game-selection-container'>
+                        <div className='card-list'>
+                            {allGames.map((game, index) =>
+                                <GameCardMini title='Tic Tac Toe' key={index}
+                                              src='https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg'
+                                              isSelected={gameSelected === index} select={() => handleOnSelect(index)}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                {/*<div>*/}
+                {/*    <p>current users: {currentUsers.join(', ')}</p>*/}
+                {/*    <input value={text} onChange={event => setText(event.target.value)}/>*/}
+                {/*    <button onClick={handleClick}>send</button>*/}
+                {/*    {*/}
+                {/*        messages.map((message, id) => <p key={id}>{message.sender}: {message.text}</p>)*/}
+                {/*    }*/}
+                {/*</div>*/}
             </div>
         </div>
     );

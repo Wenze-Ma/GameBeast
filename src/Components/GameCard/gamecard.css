@@ -18,6 +18,25 @@
     align-self: stretch;
     /*min-width: 300px;*/
     /*cursor: pointer;*/
+    /*justify-content: space-between;*/
+}
+
+.card.card-mini {
+    cursor: pointer;
+    position: relative;
+}
+
+.page-light-mode .card.card-mini {
+    box-shadow: 0 20px 27px 15px rgb(0 0 0 / 5%);
+}
+
+.card.card-mini .card-title {
+    text-align: center;
+}
+
+.card.card-mini:hover .card-title {
+    color: orange;
+    transition: 0.3s;
 }
 
 .page-light-mode .card, .page-light-mode .room-card {
@@ -33,6 +52,7 @@
 .card-header {
     display: flex;
     margin: 15px 15px 0;
+    /*flex-grow: 1;*/
 }
 
 .card-header img {
@@ -134,6 +154,12 @@
 
 .room-card-control span {
     margin: 0 10px;
+}
+
+.card-layer {
+    position: absolute;
+    right: 0;
+    transform: translate(30%, -30%);
 }
 
 
