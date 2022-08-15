@@ -73,7 +73,6 @@ const Header = ({notify, dummy}) => {
             .then(response => {
                 setUser(response);
                 Utilities.currentUser = response;
-                if (!response && url.includes('online')) navigate('/');
             });
     }, []);
 

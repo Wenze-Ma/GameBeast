@@ -57,7 +57,9 @@ const Room = () => {
             .then(response => {
                 if (!response.data.room) {
                     navigate('/online');
-                    socket.current.disconnect();
+                    if (socket.current) {
+                        socket.current.disconnect();
+                    }
                 } else {
                     setRoom(response.data.room);
                     setGameSelected(response.data.room.gameSelected);
