@@ -73,8 +73,9 @@ const Header = ({notify, dummy}) => {
             .then(response => {
                 setUser(response);
                 Utilities.currentUser = response;
+                if (!response) navigate('/');
             });
-    }, []);
+    }, [navigate]);
 
     const onMobileSearch = () => {
         setIsMobileSearchFocused(true);
