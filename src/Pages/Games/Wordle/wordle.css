@@ -1,0 +1,80 @@
+:root {
+    --cell-width: 100px;
+}
+.wordle-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wordle-board {
+    display: grid;
+    grid-gap: 10px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 10px;
+}
+
+.wordle-board-cell {
+    width: var(--cell-width);
+    height: var(--cell-width);
+    font-size: 80px;
+    pointer-events: none;
+    font-family: 'Roboto', sans-serif;
+    transition: transform 0.5s ease;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.wordle-board-cell.is-flipped {
+    transform: rotateY(180deg) scaleX(-1);
+}
+
+.wordle-board-cell.add-text {
+    animation: zoom 0.5s;
+}
+
+.wordle-control {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wordle-control button {
+    height: 48px;
+    margin: 0 5px;
+}
+
+.wordle-keyboard {
+}
+
+@media (max-width: 550px) {
+    .wordle-board {
+        --cell-width: 80px;
+
+    }
+    .wordle-board-cell {
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 400px) {
+    .wordle-board {
+        --cell-width: 60px;
+    }
+    .wordle-board-cell {
+        font-size: 45px;
+    }
+}
+
+@keyframes zoom {
+    0% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

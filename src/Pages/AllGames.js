@@ -10,9 +10,9 @@ export const allGames = [
             board: Array(9).fill(''),
             state: 'X_TURN',
         }),
-    new Game('Placeholder', 'https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg',
-        'Game', 'Use border utilities to quickly style the border and border-radius of an element. Great for images, buttons.',
-        'tic-tac-toe', 2,
+    new Game('Wordle', 'https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg',
+        'Game', 'another stupid game',
+        'wordle', 2,
         {
             board: Array(9).fill(''),
             state: 'X_TURN',

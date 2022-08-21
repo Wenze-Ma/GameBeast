@@ -1,7 +1,7 @@
 import './tictactoe.css'
 import {useEffect, useState} from "react";
 import {GAME_STATE, getResultColor, map, winConditions} from "./TicTacToe";
-import RoomService from "../../Service/RoomService";
+import RoomService from "../../../Service/RoomService";
 
 const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
     const [board, setBoard] = useState(Array(9).fill(''));

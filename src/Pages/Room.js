@@ -12,8 +12,8 @@ import GameCardMini from "../Components/GameCard/GameCardMini";
 import UserAvatar from "../Components/Avatar/UserAvatar";
 import {toast} from "react-toastify";
 import {allGames} from "./AllGames";
-import TicTacToe from "./Games/TicTacToe";
-import TicTacToeOnline from "./Games/TicTacToeOnline";
+import TicTacToe from "./Games/TicTacToe/TicTacToe";
+import TicTacToeOnline from "./Games/TicTacToe/TicTacToeOnline";
 
 const Room = () => {
     const params = useParams();
