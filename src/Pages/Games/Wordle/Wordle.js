@@ -30,6 +30,9 @@ const Wordle = () => {
     useEffect(() => {
         const keyDownHandler = async event => {
             if (position.row >= 6 || gameOver) return;
+            if(event.keyCode === 13){
+                event.preventDefault();
+            }
             const isCharacter = /[a-zA-Z]/g.test(event.key);
             if (!lock && event.key.length === 1 && isCharacter && position.column < numLetters) {
                 words[position.row][position.column] = event.key.toUpperCase();
@@ -79,13 +82,16 @@ const Wordle = () => {
     }
 
     const reset = () => {
+        if (lock) return;
         setWords(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill('')));
         setFlippedCells(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill(false)));
         setWordState(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill(CELL_STATE.NOT_FILLED)));
         setPosition({row: 0, column: 0});
         setDictionary(dict[numLetters]);
-        setTarget(dictionary[Math.floor(Math.random() * dictionary.length)]);
+        setTarget(dict[numLetters][Math.floor(Math.random() * dict[numLetters].length)]);
     }
+
+    console.log(target);
 
     const flip = async (currentRow, i) => {
         flippedCells[currentRow][i] = true;
