@@ -17,6 +17,7 @@ function App() {
     } else {
         Utilities.isDarkMode = localStorage.getItem('isDarkMode') === 'true';
     }
+
     return (
         <BrowserRouter>
             <Header notify={setDummy} dummy={dummy}/>

@@ -22,7 +22,7 @@
     font-size: 80px;
     pointer-events: none;
     font-family: 'Roboto', sans-serif;
-    transition: transform 0.5s ease;
+    transition: transform 0.5s ease, background-color 1s;
     transform-style: preserve-3d;
     position: relative;
 }
@@ -30,6 +30,19 @@
 .wordle-board-cell.is-flipped {
     transform: rotateY(180deg) scaleX(-1);
 }
+
+.wordle-board-cell.correct {
+    background-color: #3cb42c;
+}
+
+.wordle-board-cell.incorrect {
+    background-color: #3F4E61;
+}
+
+.wordle-board-cell.wrong-position {
+    background-color: #ecc200;
+}
+
 
 .wordle-board-cell.add-text {
     animation: zoom 0.5s;
