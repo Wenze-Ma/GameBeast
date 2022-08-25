@@ -91,8 +91,6 @@ const Wordle = () => {
         setTarget(dict[numLetters][Math.floor(Math.random() * dict[numLetters].length)]);
     }
 
-    console.log(target);
-
     const flip = async (currentRow, i) => {
         flippedCells[currentRow][i] = true;
         setFlippedCells([...flippedCells]);
