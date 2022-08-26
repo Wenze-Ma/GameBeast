@@ -12,6 +12,12 @@ const CELL_STATE = {
     NOT_FILLED: 'false',
 }
 
+const keyboard = [
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+]
+
 const Wordle = () => {
     const [numLetters, setNumLetters] = useState('5');
     const [words, setWords] = useState(Array(6).fill('').map(_ => Array(5).fill('')));
@@ -21,7 +27,8 @@ const Wordle = () => {
     const [target, setTarget] = useState(dict['5'][Math.floor(Math.random() * dict['5'].length)]);
     const [wordState, setWordState] = useState(Array(6).fill('').map(_ => Array(5).fill(CELL_STATE.NOT_FILLED)));
     const [gameOver, setGameOver] = useState(false);
-    const [hintNum, setHintNum] = useState(2);
+    const [hintNum, setHintNum] = useState(1);
+    const [pressedKeys, setPressedKeys] = useState(Array(26).fill(CELL_STATE.NOT_FILLED));
     useEffect(() => {
         reset();
     }, [numLetters]);
@@ -32,32 +39,7 @@ const Wordle = () => {
             if (event.keyCode === 13) {
                 event.preventDefault();
             }
-            const isCharacter = /[a-zA-Z]/g.test(event.key);
-            if (!lock && event.key.length === 1 && isCharacter && position.column < numLetters) {
-                words[position.row][position.column] = event.key.toUpperCase();
-                setWords(words);
-                setPosition({column: position.column + 1, row: position.row});
-            } else if (event.key === 'Enter' && position.column === parseInt(numLetters)) {
-                const currentRow = position.row;
-                if (!dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
-                    toast.info('It is not a word!');
-                    return;
-                }
-                setLock(true);
-                for (let i = 0; i < numLetters; i++) {
-                    await flip(currentRow, i);
-                }
-                setLock(false);
-                if (words[position.row].join('').toLowerCase() === target) {
-                    toast.success('Congratulations! The word is ' + target);
-                    setGameOver(true);
-                }
-                setPosition({row: position.row + 1, column: 0});
-            } else if (event.key === 'Backspace' && position.column > 0) {
-                words[position.row][position.column - 1] = '';
-                setWords(words);
-                setPosition({row: position.row, column: position.column - 1});
-            }
+            await pressKey(event.key);
         };
         document.addEventListener('keydown', keyDownHandler);
         return () => {
@@ -86,7 +68,8 @@ const Wordle = () => {
         setWordState(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill(CELL_STATE.NOT_FILLED)));
         setPosition({row: 0, column: 0});
         setTarget(dict[numLetters][Math.floor(Math.random() * dict[numLetters].length)]);
-        setHintNum(2);
+        setPressedKeys(Array(26).fill(CELL_STATE.NOT_FILLED));
+        setHintNum(1);
     }
 
     const flip = async (currentRow, i) => {
@@ -95,12 +78,16 @@ const Wordle = () => {
         const letter = words[currentRow][i];
         if (target[i].toUpperCase() === letter) {
             wordState[currentRow][i] = CELL_STATE.CORRECT;
+            pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.CORRECT;
         } else if (target.toUpperCase().includes(letter)) {
             wordState[currentRow][i] = CELL_STATE.WRONG_POSITION;
+            pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.WRONG_POSITION;
         } else {
             wordState[currentRow][i] = CELL_STATE.INCORRECT;
+            pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.INCORRECT;
         }
         setWordState([...wordState]);
+        setPressedKeys([...pressedKeys]);
         await new Promise(r => setTimeout(r, 200));
     }
 
@@ -124,14 +111,45 @@ const Wordle = () => {
         }
         words[position.row - 1][index] = target[index].toUpperCase();
         wordState[position.row - 1][index] = CELL_STATE.CORRECT;
+        pressedKeys[target[index].charCodeAt(0) - 65] = CELL_STATE.CORRECT;
         setWords([...words]);
         setWordState([...wordState]);
+        setPressedKeys([...pressedKeys]);
         setHintNum(hintNum - 1);
+    }
+
+    const pressKey = async (key) => {
+        const isCharacter = /[a-zA-Z]/g.test(key);
+        if (!lock && key.length === 1 && isCharacter && position.column < numLetters) {
+            words[position.row][position.column] = key.toUpperCase();
+            setWords(words);
+            setPosition({column: position.column + 1, row: position.row});
+        } else if (key === 'Enter' && position.column === parseInt(numLetters)) {
+            const currentRow = position.row;
+            if (!dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
+                toast.info('It is not a word!');
+                return;
+            }
+            setLock(true);
+            for (let i = 0; i < numLetters; i++) {
+                await flip(currentRow, i);
+            }
+            setLock(false);
+            if (words[position.row].join('').toLowerCase() === target) {
+                toast.success('Congratulations! The word is ' + target);
+                setGameOver(true);
+            }
+            setPosition({row: position.row + 1, column: 0});
+        } else if (key === 'Backspace' && position.column > 0) {
+            words[position.row][position.column - 1] = '';
+            setWords(words);
+            setPosition({row: position.row, column: position.column - 1});
+        }
     }
 
     return (
         <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
-            <div>
+            <div className='wordle-game'>
                 <div className='wordle-body'>
                     <div className='wordle-control'>
                         <form>
@@ -163,7 +181,17 @@ const Wordle = () => {
                     </div>
                 </div>
                 <div className='wordle-keyboard'>
-
+                    <div className='keyboard-row'>
+                        {keyboard[0].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                    </div>
+                    <div className='keyboard-row'>
+                        {keyboard[1].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                    </div>
+                    <div className='keyboard-row'>
+                        <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Enter')}>Enter</div>
+                        {keyboard[2].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                        <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Backspace')}>Del</div>
+                    </div>
                 </div>
             </div>
         </div>
