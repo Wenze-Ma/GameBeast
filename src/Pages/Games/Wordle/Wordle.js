@@ -18,11 +18,10 @@ const Wordle = () => {
     const [position, setPosition] = useState({row: 0, column: 0});
     const [flippedCells, setFlippedCells] = useState(Array(6).fill('').map(_ => Array(5).fill(false)));
     const [lock, setLock] = useState(false);
-    const [dictionary, setDictionary] = useState(dict['5']);
-    const [target, setTarget] = useState(dictionary[Math.floor(Math.random() * dictionary.length)]);
+    const [target, setTarget] = useState(dict['5'][Math.floor(Math.random() * dict['5'].length)]);
     const [wordState, setWordState] = useState(Array(6).fill('').map(_ => Array(5).fill(CELL_STATE.NOT_FILLED)));
     const [gameOver, setGameOver] = useState(false);
-    const [hasHint, setHasHint] = useState(true);
+    const [hintNum, setHintNum] = useState(2);
     useEffect(() => {
         reset();
     }, [numLetters]);
@@ -30,7 +29,7 @@ const Wordle = () => {
     useEffect(() => {
         const keyDownHandler = async event => {
             if (position.row >= 6 || gameOver) return;
-            if(event.keyCode === 13){
+            if (event.keyCode === 13) {
                 event.preventDefault();
             }
             const isCharacter = /[a-zA-Z]/g.test(event.key);
@@ -40,7 +39,7 @@ const Wordle = () => {
                 setPosition({column: position.column + 1, row: position.row});
             } else if (event.key === 'Enter' && position.column === parseInt(numLetters)) {
                 const currentRow = position.row;
-                if (!dictionary.includes(words[currentRow].join('').toLowerCase())) {
+                if (!dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
                     toast.info('It is not a word!');
                     return;
                 }
@@ -54,7 +53,6 @@ const Wordle = () => {
                     setGameOver(true);
                 }
                 setPosition({row: position.row + 1, column: 0});
-                setHasHint(true);
             } else if (event.key === 'Backspace' && position.column > 0) {
                 words[position.row][position.column - 1] = '';
                 setWords(words);
@@ -87,8 +85,8 @@ const Wordle = () => {
         setFlippedCells(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill(false)));
         setWordState(Array(6).fill('').map(_ => Array(parseInt(numLetters)).fill(CELL_STATE.NOT_FILLED)));
         setPosition({row: 0, column: 0});
-        setDictionary(dict[numLetters]);
         setTarget(dict[numLetters][Math.floor(Math.random() * dict[numLetters].length)]);
+        setHintNum(2);
     }
 
     const flip = async (currentRow, i) => {
@@ -111,21 +109,24 @@ const Wordle = () => {
             toast.info("You need to enter at least one word!");
             return;
         }
-        if (!hasHint) {
-            toast.info("You can only use hint once in the same round!");
+        if (hintNum === 0) {
+            toast.info("You've used all your hints!");
             return;
         }
-        setHasHint(false);
-        for (let i = 0; i < numLetters; i++) {
-            const value = wordState[position.row - 1][i];
-            if (value !== CELL_STATE.CORRECT) {
-                words[position.row - 1][i] = target[i].toUpperCase();
-                wordState[position.row - 1][i] = CELL_STATE.CORRECT;
-                setWords([...words]);
-                setWordState([...wordState]);
-                break;
-            }
+        const count = wordState[position.row - 1].filter(s => s === CELL_STATE.CORRECT).length;
+        if (count === numLetters - 1) {
+            toast.info("You cannot use hint for the last letter");
+            return;
         }
+        let index = wordState[position.row - 1].indexOf(CELL_STATE.INCORRECT);
+        if (index === -1) {
+            index = wordState[position.row - 1].indexOf(CELL_STATE.WRONG_POSITION);
+        }
+        words[position.row - 1][index] = target[index].toUpperCase();
+        wordState[position.row - 1][index] = CELL_STATE.CORRECT;
+        setWords([...words]);
+        setWordState([...wordState]);
+        setHintNum(hintNum - 1);
     }
 
     return (
@@ -133,16 +134,16 @@ const Wordle = () => {
             <div>
                 <div className='wordle-body'>
                     <div className='wordle-control'>
-                        <FormControl variant="standard" sx={{m: 1, width: 100}}>
-                            <InputLabel id='letter-number-select'>Number of letters</InputLabel>
-                            <Select value={numLetters} onChange={event => setNumLetters(event.target.value)}>
-                                <MenuItem value={4}>4</MenuItem>
-                                <MenuItem value={5}>5</MenuItem>
-                                <MenuItem value={6}>6</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <form>
+                            <label htmlFor='letters'>Number of letters</label>
+                            <select id='letters' onChange={(event) => setNumLetters(event.target.value)} value={numLetters}>
+                                <option value='4'>4</option>
+                                <option value='5'>5</option>
+                                <option value='6'>6</option>
+                            </select>
+                        </form>
                         <div>
-                            <button className='btn btn-info' onClick={showHint}>Hint</button>
+                            <button className='btn btn-info' onClick={showHint}>Hint: {hintNum}</button>
                             <button className='btn btn-secondary' onClick={reset}>Reset</button>
                         </div>
                     </div>

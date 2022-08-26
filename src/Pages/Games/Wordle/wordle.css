@@ -22,13 +22,14 @@
     font-size: 80px;
     pointer-events: none;
     font-family: 'Roboto', sans-serif;
-    transition: transform 0.5s ease, background-color 1s;
     transform-style: preserve-3d;
     position: relative;
+    transition: transform 0.5s ease;
 }
 
 .wordle-board-cell.is-flipped {
     transform: rotateY(180deg) scaleX(-1);
+    transition: transform 0.5s ease, background-color 1s;
 }
 
 .wordle-board-cell.correct {
@@ -54,6 +55,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.wordle-control form {
+    display: flex;
+    flex-direction: column;
+}
+
+.wordle-control form select {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    padding: 5px;
+    background-color: transparent;
+}
+
+.page-dark-mode .wordle-control form, .page-dark-mode .wordle-control form select {
+    color: white;
 }
 
 .wordle-control button {
