@@ -81,7 +81,8 @@ const Wordle = () => {
             pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.CORRECT;
         } else if (target.toUpperCase().includes(letter)) {
             wordState[currentRow][i] = CELL_STATE.WRONG_POSITION;
-            pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.WRONG_POSITION;
+            if (pressedKeys[letter.charCodeAt(0) - 65] !== CELL_STATE.CORRECT)
+                pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.WRONG_POSITION;
         } else {
             wordState[currentRow][i] = CELL_STATE.INCORRECT;
             pressedKeys[letter.charCodeAt(0) - 65] = CELL_STATE.INCORRECT;
