@@ -75,6 +75,8 @@ const Room = () => {
                     setRoom(response.data.room);
                     setGameSelected(response.data.room.gameSelected);
                     setGameStarted(response.data.room.gameStarted);
+                    setUsersWatching(response.data.room.watchers);
+                    setUsersReady(response.data.room.usersReady);
                     if (currentUsers.length === 0) {
                         setCurrentUsers(response.data.room.members);
                     }
@@ -101,6 +103,13 @@ const Room = () => {
             socket.current.on('leave-room', userId => {
                 console.log("Leave")
                 toast.info(userId + ' leaved the room');
+                if (usersReady.includes(userId)) {
+                    setUsersReady(usersReady.filter(u => u !== userId));
+                    setShowUsers(true);
+                }
+                if (usersWatching.includes(userId)) {
+                    setUsersWatching(usersWatching.filter(u => u !== userId));
+                }
                 setCurrentUsers(currentUsers.filter(current => current !== userId));
             });
             socket.current.on('game-select', index => {
@@ -181,7 +190,8 @@ const Room = () => {
                         });
                 }
             } else {
-                socket.current.emit('ready', room._id, user.email);
+                RoomService.getReady(room._id, user.email)
+                    .then(_ => socket.current.emit('ready', room._id, user.email));
             }
         }
     }
@@ -189,7 +199,8 @@ const Room = () => {
     const handleOnWatch = () => {
         if (socket.current && room && user) {
             if (user.email !== room.host) {
-                socket.current.emit('watch', room._id, user.email);
+                RoomService.watchGame(room._id, user.email)
+                    .then(_ => socket.current.emit('watch', room._id, user.email));
             }
         }
     }
@@ -249,8 +260,7 @@ const Room = () => {
                         </div>
                     </div>
                 </div>
-                {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom}
-                                                setGameStarted={setGameStarted}/> :
+                {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} usersReady={usersReady}/> :
                     <div className='game-selection-container'>
                         <div className='game-card-container'>
                             <div className='arrow-container'

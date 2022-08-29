@@ -59,7 +59,7 @@
     transform: translateY(calc(-50% + 32px));
     transition: max-width 0.3s ease-out;
     max-width: 1000px;
-    z-index: 5;
+    z-index: 11;
 }
 
 .users-wrapper {

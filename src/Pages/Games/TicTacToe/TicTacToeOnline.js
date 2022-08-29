@@ -4,7 +4,7 @@ import {GAME_STATE, getResultColor, map, winConditions} from "./TicTacToe";
 import RoomService from "../../../Service/RoomService";
 import {toast} from "react-toastify";
 
-const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
+const TicTacToeOnline = ({room, user, socket, usersReady}) => {
     const [board, setBoard] = useState(Array(9).fill(''));
     const [gameState, setGameState] = useState(GAME_STATE.X_TURN);
     const [gameStateMap, setGameStateMap] = useState({});
@@ -19,7 +19,7 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
                     'O Wins': 'You Lose!',
                     'Draw': 'Draw',
                 });
-            } else if (room.members[1] === user.email) {
+            } else if (usersReady[0] === user.email) {
                 setGameStateMap({
                     'O Turn': 'Your Turn',
                     'X Turn': 'Waiting for the other player...',
@@ -38,7 +38,7 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
             }
             setGameState(GAME_STATE.X_TURN);
         }
-    }, [room, socket, user]);
+    }, [room, socket, user, usersReady]);
 
     useEffect(() => {
         if (socket.current) {
@@ -54,7 +54,7 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
 
     const handleOnClickCell = (index) => {
         if (board[index] !== '' || lock) return;
-        if (user.email !== room.members[0] && user.email !== room.members[1]) {
+        if (user.email !== room.members[0] && user.email !== usersReady[0]) {
             toast.info("You are not in the game!");
             return;
         }
@@ -65,14 +65,18 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'X', index, 'O_TURN');
                         setLock(true)
                     }
+                } else {
+                    toast.info("It's not your turn!");
                 }
                 break;
             case GAME_STATE.O_TURN:
-                if (room.members[1] === user.email) {
+                if (usersReady[0] === user.email) {
                     if (socket.current) {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'O', index, 'X_TURN');
                         setLock(true);
                     }
+                } else {
+                    toast.info("It's not your turn!");
                 }
                 break;
             case GAME_STATE.X_WIN:

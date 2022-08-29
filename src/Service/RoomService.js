@@ -35,7 +35,13 @@ const RoomService = {
     },
     endGame: (roomId) => {
         return axios.post(`${server}/rooms/end`, {roomId: roomId});
-    }
+    },
+    watchGame: (roomId, email) => {
+        return axios.post(`${server}/rooms/watch`, {roomId: roomId, email: email});
+    },
+    getReady: (roomId, email) => {
+        return axios.post(`${server}/rooms/ready`, {roomId: roomId, email: email});
+    },
 }
 
 export default RoomService;
