@@ -55,6 +55,10 @@ code {
     background-image: linear-gradient(310deg, #7928ca, #ff0080);
 }
 
+.btn-ready {
+    background-image: linear-gradient(310deg, #16931f, #48e140);
+}
+
 .btn-secondary {
     background-image: linear-gradient(310deg,#627594,#a8b8d8);
 }

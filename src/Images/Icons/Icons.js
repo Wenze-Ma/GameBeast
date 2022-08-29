@@ -132,10 +132,22 @@ export const EyeCloseIcon = () => {
 export const CheckIcon = () => {
     return (
         <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
-              width="42" height="42">
+             width="42" height="42">
             <path
                 d="M512 85.333333c235.648 0 426.666667 191.018667 426.666667 426.666667s-191.018667 426.666667-426.666667 426.666667S85.333333 747.648 85.333333 512 276.352 85.333333 512 85.333333z m231.296 226.346667l-291.626667 291.626667-170.965333-170.965334-60.330667 60.373334 231.253334 231.253333 352-351.957333-60.330667-60.330667z"
                 fill="#5AA37C"></path>
         </svg>
     );
 }
+
+export const ArrowLeft = ({showUsers}) => {
+    return (
+        <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+             width="24" height="24" style={{transform: showUsers ? 'scaleX(1)' : 'scaleX(-1)', transition: 'transform 0.2s'}}>
+            <path
+                d="M641.28 278.613333l-45.226667-45.226666-278.634666 278.762666 278.613333 278.485334 45.248-45.269334-233.365333-233.237333z"
+                fill={Utilities.isDarkMode ? '#fff' : '#000'}
+            />
+        </svg>
+    );
+};

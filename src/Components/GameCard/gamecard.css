@@ -24,6 +24,8 @@
 .card.card-mini {
     cursor: pointer;
     position: relative;
+    flex-grow: 1;
+    min-width: 250px;
 }
 
 .page-light-mode .card.card-mini {

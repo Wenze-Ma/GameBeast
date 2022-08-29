@@ -18,3 +18,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.user-info-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.user-tag {
+    font-size: 12px;
+    font-weight: bold;
+}

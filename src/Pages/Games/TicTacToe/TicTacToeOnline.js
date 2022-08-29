@@ -2,6 +2,7 @@ import './tictactoe.css'
 import {useEffect, useState} from "react";
 import {GAME_STATE, getResultColor, map, winConditions} from "./TicTacToe";
 import RoomService from "../../../Service/RoomService";
+import {toast} from "react-toastify";
 
 const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
     const [board, setBoard] = useState(Array(9).fill(''));
@@ -18,12 +19,20 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
                     'O Wins': 'You Lose!',
                     'Draw': 'Draw',
                 });
-            } else {
+            } else if (room.members[1] === user.email) {
                 setGameStateMap({
                     'O Turn': 'Your Turn',
                     'X Turn': 'Waiting for the other player...',
                     'O Wins': 'You Win!',
                     'X Wins': 'You Lose!',
+                    'Draw': 'Draw',
+                });
+            } else {
+                setGameStateMap({
+                    'O Turn': 'O\'s Turn',
+                    'X Turn': 'X\'s Turn',
+                    'O Wins': 'O Wins!',
+                    'X Wins': 'X Wins!',
                     'Draw': 'Draw',
                 });
             }
@@ -45,6 +54,10 @@ const TicTacToeOnline = ({room, user, socket, setRoom, setGameStarted}) => {
 
     const handleOnClickCell = (index) => {
         if (board[index] !== '' || lock) return;
+        if (user.email !== room.members[0] && user.email !== room.members[1]) {
+            toast.info("You are not in the game!");
+            return;
+        }
         switch (gameState) {
             case GAME_STATE.X_TURN:
                 if (room.members[0] === user.email) {

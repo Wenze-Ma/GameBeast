@@ -14,6 +14,14 @@ import {toast} from "react-toastify";
 import {allGames} from "./AllGames";
 import TicTacToe from "./Games/TicTacToe/TicTacToe";
 import TicTacToeOnline from "./Games/TicTacToe/TicTacToeOnline";
+import {ArrowLeft} from "../Images/Icons/Icons";
+
+export const STATUS = {
+    HOST: 'HOST',
+    PREPARE: 'PREPARING...',
+    READY: 'READY',
+    WATCH: 'WATCHING...',
+}
 
 const Room = () => {
     const params = useParams();
@@ -23,12 +31,15 @@ const Room = () => {
     const [currentUsers, setCurrentUsers] = useState([]);
     const [room, setRoom] = useState(null);
     const modalRef = useRef(null);
-    const [gameSelected, setGameSelected] = useState(-1);
+    const [gameSelected, setGameSelected] = useState(0);
     const [showPrompt, setShowPrompt] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     useOutsideHandler(modalRef, showPrompt, setShowPrompt);
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
+    const [showUsers, setShowUsers] = useState(true);
+    const [usersReady, setUsersReady] = useState([]);
+    const [usersWatching, setUsersWatching] = useState([]);
     const handleClick = () => {
         if (text.replace(/\s/g, '') && room && user) {
             // setMessages([...messages, {sender: user.email, text: text}]);
@@ -97,9 +108,29 @@ const Room = () => {
             });
             socket.current.on('game-start', () => {
                 setGameStarted(true);
+                setShowUsers(false);
             });
             socket.current.on('end-game', () => {
                 setGameStarted(false);
+                setUsersReady([]);
+                setShowUsers(true);
+            });
+            socket.current.on('ready', userId => {
+                if (usersReady.includes(userId)) {
+                    setUsersReady(usersReady.filter(u => u !== userId));
+                } else {
+                    setUsersReady([...usersReady, userId]);
+                }
+            });
+            socket.current.on('watch', userId => {
+                if (usersReady.includes(userId)) {
+                    setUsersReady(usersReady.filter(u => u !== userId));
+                }
+                if (usersWatching.includes(userId)) {
+                    setUsersWatching(usersWatching.filter(u => u !== userId));
+                } else {
+                    setUsersWatching([...usersWatching, userId]);
+                }
             });
             return () => {
                 socket.current.off('receive-message');
@@ -108,6 +139,8 @@ const Room = () => {
                 socket.current.off('game-select');
                 socket.current.off('tic-tac-toe-place-chess');
                 socket.current.off('end-game');
+                socket.current.off('ready');
+                socket.current.off('watch');
             }
         }
     });
@@ -135,9 +168,9 @@ const Room = () => {
     const handleOnStart = () => {
         if (socket.current && room && user) {
             if (user.email === room.host) {
-                if (gameSelected === -1) {
-                    toast.info('Please select a game first');
-                } else if (allGames[gameSelected].requiredPlayerNumber !== room.members.length) {
+                if (usersReady.length + usersWatching.length < room.members.length - 1) {
+                    toast.info('Please wait for all users to get ready!');
+                } else if (allGames[gameSelected].requiredPlayerNumber !== usersReady.length + 1) {
                     toast.info('This game requires ' + allGames[gameSelected].requiredPlayerNumber + ' players');
                 } else {
                     RoomService.startGame(room._id, allGames[gameSelected].gameData)
@@ -148,7 +181,15 @@ const Room = () => {
                         });
                 }
             } else {
-                toast.info('Only host can start the game');
+                socket.current.emit('ready', room._id, user.email);
+            }
+        }
+    }
+
+    const handleOnWatch = () => {
+        if (socket.current && room && user) {
+            if (user.email !== room.host) {
+                socket.current.emit('watch', room._id, user.email);
             }
         }
     }
@@ -160,30 +201,84 @@ const Room = () => {
                             modalRef={modalRef} room={room} user={user}/>
             </div>
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
-                <div className='control-container'>
-                    <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>
-                    <button className='btn btn-primary'
-                            style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}
-                            onClick={handleOnStart}>Start Game
-                    </button>
-                </div>
-                <div className='room-container'>
-                    <div className='users-container'>
-                        {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}
+                {/*<div className='control-container'>*/}
+                {/*    <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>*/}
+                {/*    <button className='btn btn-primary'*/}
+                {/*            style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}*/}
+                {/*            onClick={handleOnStart}>Start Game*/}
+                {/*    </button>*/}
+                {/*</div>*/}
+                {/*<div className='room-container'>*/}
+                {/*    <div className='users-container'>*/}
+                {/*        {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}*/}
+                {/*    </div>*/}
+                {/*    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom} setGameStarted={setGameStarted}/> :*/}
+                {/*        <div className='game-selection-container'>*/}
+                {/*            <div className='card-list'>*/}
+                {/*                {allGames.map((game, index) =>*/}
+                {/*                    <GameCardMini game={game} key={index}*/}
+                {/*                                  isSelected={gameSelected === index}*/}
+                {/*                                  select={() => handleOnSelect(index)}/>*/}
+                {/*                )}*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*    }*/}
+                {/*    /!*<TicTacToeOnline room={room} socket={socket} user={user}/>*!/*/}
+                {/*</div>*/}
+                <div className='users-container' style={{maxWidth: showUsers ? 1000 : 0}}>
+                    <div className='arrow' onClick={() => setShowUsers(!showUsers)}>
+                        <ArrowLeft showUsers={showUsers}/>
                     </div>
-                    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom} setGameStarted={setGameStarted}/> :
-                        <div className='game-selection-container'>
-                            <div className='card-list'>
-                                {allGames.map((game, index) =>
-                                    <GameCardMini game={game} key={index}
-                                                  isSelected={gameSelected === index}
-                                                  select={() => handleOnSelect(index)}/>
-                                )}
+                    <div className='users-wrapper'>
+                        <div className='users'>
+                            {currentUsers.map(current => <UserAvatar email={current} key={current}
+                                                                     status={current === room?.host ? STATUS.HOST :
+                                                                         (usersWatching.includes(current) ? STATUS.WATCH :
+                                                                             (usersReady.includes(current) ? STATUS.READY : STATUS.PREPARE))}/>)}
+                        </div>
+                        <div className='control-container'>
+                            <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>
+                                Leave Room
+                            </button>
+                            <button className='btn btn-warning'
+                                    style={{marginLeft: 20}}
+                                    onClick={handleOnWatch}
+                            >
+                                {usersWatching.includes(user?.email) ? 'Join' : 'Watch'} Game
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom}
+                                                setGameStarted={setGameStarted}/> :
+                    <div className='game-selection-container'>
+                        <div className='game-card-container'>
+                            <div className='arrow-container'
+                                 onClick={() => handleOnSelect(gameSelected === 0 ? allGames.length - 1 : gameSelected - 1)}>
+                                <ArrowLeft showUsers={true}/>
+                            </div>
+                            <GameCardMini game={allGames[gameSelected]}/>
+                            <div className='arrow-container'
+                                 onClick={() => handleOnSelect(gameSelected === allGames.length - 1 ? 0 : gameSelected + 1)}>
+                                <ArrowLeft showUsers={false}/>
                             </div>
                         </div>
-                    }
-                    {/*<TicTacToeOnline room={room} socket={socket} user={user}/>*/}
-                </div>
+                        <div className='game-info'>
+                            Game settings...
+                        </div>
+                        <div className='game-control'
+                             style={{display: usersWatching.includes(user?.email) ? 'none' : 'flex'}}>
+                            <button
+                                className={`btn ${(user?.email === room?.host || !usersReady.includes(user?.email)) ? 'btn-primary' : 'btn-secondary'}`}
+                                style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}
+                                onClick={handleOnStart}
+                            >
+                                {user?.email === room?.host ? 'Start Game' : (usersReady.includes(user?.email) ? 'Unready' : 'Ready')}
+                            </button>
+                        </div>
+                    </div>
+                }
+
                 {/*<div>*/}
                 {/*    <p>current users: {currentUsers.join(', ')}</p>*/}
                 {/*    <input value={text} onChange={event => setText(event.target.value)}/>*/}
