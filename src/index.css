@@ -69,6 +69,11 @@ code {
     min-height: calc(100vh - 104px);
 }
 
+.page .page {
+    margin-top: 0;
+    padding: 0;
+}
+
 .text-gradient {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

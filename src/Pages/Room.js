@@ -15,6 +15,7 @@ import {allGames} from "./AllGames";
 import TicTacToe from "./Games/TicTacToe/TicTacToe";
 import TicTacToeOnline from "./Games/TicTacToe/TicTacToeOnline";
 import {ArrowLeft} from "../Images/Icons/Icons";
+import Wordle from "./Games/Wordle/Wordle";
 
 export const STATUS = {
     HOST: 'HOST',
@@ -46,7 +47,6 @@ const Room = () => {
             socket.current.emit('send-message', room._id, user.email, text);
         }
     }
-
 
     useEffect(() => {
         UserService.getUserByCookie(Cookies.get('game_on_star_cookie'))
@@ -212,30 +212,6 @@ const Room = () => {
                             modalRef={modalRef} room={room} user={user}/>
             </div>
             <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
-                {/*<div className='control-container'>*/}
-                {/*    <button className='btn btn-secondary' onClick={() => setShowPrompt(true)}>Leave Room</button>*/}
-                {/*    <button className='btn btn-primary'*/}
-                {/*            style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}*/}
-                {/*            onClick={handleOnStart}>Start Game*/}
-                {/*    </button>*/}
-                {/*</div>*/}
-                {/*<div className='room-container'>*/}
-                {/*    <div className='users-container'>*/}
-                {/*        {currentUsers.map(current => <UserAvatar email={current} key={current}/>)}*/}
-                {/*    </div>*/}
-                {/*    {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} setRoom={setRoom} setGameStarted={setGameStarted}/> :*/}
-                {/*        <div className='game-selection-container'>*/}
-                {/*            <div className='card-list'>*/}
-                {/*                {allGames.map((game, index) =>*/}
-                {/*                    <GameCardMini game={game} key={index}*/}
-                {/*                                  isSelected={gameSelected === index}*/}
-                {/*                                  select={() => handleOnSelect(index)}/>*/}
-                {/*                )}*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-                {/*    }*/}
-                {/*    /!*<TicTacToeOnline room={room} socket={socket} user={user}/>*!/*/}
-                {/*</div>*/}
                 <div className='users-container' style={{maxWidth: showUsers ? 1000 : 0}}>
                     <div className='arrow' onClick={() => setShowUsers(!showUsers)}>
                         <ArrowLeft showUsers={showUsers}/>
@@ -260,34 +236,35 @@ const Room = () => {
                         </div>
                     </div>
                 </div>
-                {gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} usersReady={usersReady}/> :
-                    <div className='game-selection-container'>
-                        <div className='game-card-container'>
-                            <div className='arrow-container'
-                                 onClick={() => handleOnSelect(gameSelected === 0 ? allGames.length - 1 : gameSelected - 1)}>
-                                <ArrowLeft showUsers={true}/>
-                            </div>
-                            <GameCardMini game={allGames[gameSelected]}/>
-                            <div className='arrow-container'
-                                 onClick={() => handleOnSelect(gameSelected === allGames.length - 1 ? 0 : gameSelected + 1)}>
-                                <ArrowLeft showUsers={false}/>
-                            </div>
-                        </div>
-                        <div className='game-info'>
-                            Game settings...
-                        </div>
-                        <div className='game-control'
-                             style={{display: usersWatching.includes(user?.email) ? 'none' : 'flex'}}>
-                            <button
-                                className={`btn ${(user?.email === room?.host || !usersReady.includes(user?.email)) ? 'btn-primary' : 'btn-secondary'}`}
-                                style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}
-                                onClick={handleOnStart}
-                            >
-                                {user?.email === room?.host ? 'Start Game' : (usersReady.includes(user?.email) ? 'Unready' : 'Ready')}
-                            </button>
-                        </div>
-                    </div>
-                }
+                <Wordle/>
+                {/*{gameStarted ? <TicTacToeOnline room={room} socket={socket} user={user} usersReady={usersReady}/> :*/}
+                {/*    <div className='game-selection-container'>*/}
+                {/*        <div className='game-card-container'>*/}
+                {/*            <div className='arrow-container'*/}
+                {/*                 onClick={() => handleOnSelect(gameSelected === 0 ? allGames.length - 1 : gameSelected - 1)}>*/}
+                {/*                <ArrowLeft showUsers={true}/>*/}
+                {/*            </div>*/}
+                {/*            <GameCardMini game={allGames[gameSelected]}/>*/}
+                {/*            <div className='arrow-container'*/}
+                {/*                 onClick={() => handleOnSelect(gameSelected === allGames.length - 1 ? 0 : gameSelected + 1)}>*/}
+                {/*                <ArrowLeft showUsers={false}/>*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*        <div className='game-info'>*/}
+                {/*            Game settings...*/}
+                {/*        </div>*/}
+                {/*        <div className='game-control'*/}
+                {/*             style={{display: usersWatching.includes(user?.email) ? 'none' : 'flex'}}>*/}
+                {/*            <button*/}
+                {/*                className={`btn ${(user?.email === room?.host || !usersReady.includes(user?.email)) ? 'btn-primary' : 'btn-secondary'}`}*/}
+                {/*                style={{marginLeft: 20, display: gameStarted ? 'none' : 'inline-block'}}*/}
+                {/*                onClick={handleOnStart}*/}
+                {/*            >*/}
+                {/*                {user?.email === room?.host ? 'Start Game' : (usersReady.includes(user?.email) ? 'Unready' : 'Ready')}*/}
+                {/*            </button>*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*}*/}
 
                 {/*<div>*/}
                 {/*    <p>current users: {currentUsers.join(', ')}</p>*/}

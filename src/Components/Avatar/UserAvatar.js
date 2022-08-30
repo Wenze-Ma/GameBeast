@@ -13,7 +13,9 @@ const UserAvatar = ({email, status}) => {
     return (
         <div className='user-box'>
             <div className='user-info-container'>
-                <div className='avatar'>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</div>
+                <div className='avatar'>
+                    <img src={user?.picture || ''} alt={`${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0)}`} width='100%' height='100%'/>
+                </div>
                 <div className='user-name'>{user?.firstName || user?.lastName || user?.email || 'N/A'}</div>
             </div>
             <span className={`user-tag text-gradient ${style}`}>{status}</span>

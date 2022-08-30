@@ -56,7 +56,7 @@
     width: 320px;
     height: 600px;
     top: 50%;
-    transform: translateY(calc(-50% + 32px));
+    transform: translateY(-50%);
     transition: max-width 0.3s ease-out;
     max-width: 1000px;
     z-index: 11;
@@ -142,7 +142,7 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, calc(-50% + 32px));
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -171,6 +171,39 @@
 .game-control {
     display: flex;
     justify-content: end;
+}
+
+.profile-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-info-container {
+    max-width: 400px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-info-container .avatar {
+    margin: 20px auto 0;
+}
+
+.profile-info-container form {
+    margin: 10px;
+}
+
+.page-dark-mode label {
+    color: white;
+}
+
+.profile-info-container .modal-button-wrapper {
+    justify-content: flex-end;
+}
+
+.profile-info-container .modal-button-wrapper button {
+    width: 25%;
 }
 
 @media (max-width: 900px) {

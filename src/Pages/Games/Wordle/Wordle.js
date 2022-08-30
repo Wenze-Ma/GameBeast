@@ -1,6 +1,5 @@
 import Utilities from "../../../Utilities/Utilities";
 import './wordle.css';
-import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 import {useEffect, useState} from "react";
 import {dict} from "../../../Utilities/dictionary";
 import {toast} from "react-toastify";
@@ -18,7 +17,7 @@ const keyboard = [
     ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ]
 
-const Wordle = () => {
+const Wordle = ({isOnline}) => {
     const [numLetters, setNumLetters] = useState('5');
     const [words, setWords] = useState(Array(6).fill('').map(_ => Array(5).fill('')));
     const [position, setPosition] = useState({row: 0, column: 0});
@@ -152,20 +151,61 @@ const Wordle = () => {
         <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
             <div className='wordle-game'>
                 <div className='wordle-body'>
-                    <div className='wordle-control'>
-                        <form>
-                            <label htmlFor='letters'>Number of letters</label>
-                            <select id='letters' onChange={(event) => setNumLetters(event.target.value)} value={numLetters}>
-                                <option value='4'>4</option>
-                                <option value='5'>5</option>
-                                <option value='6'>6</option>
-                            </select>
-                        </form>
-                        <div>
-                            <button className='btn btn-info' onClick={showHint}>Hint: {hintNum}</button>
-                            <button className='btn btn-secondary' onClick={reset}>Reset</button>
+                    {isOnline ?
+                        <div className='wordle-control'>
+                            <form>
+                                <label htmlFor='letters'>Number of letters</label>
+                                <select id='letters' onChange={(event) => setNumLetters(event.target.value)}
+                                        value={numLetters}>
+                                    <option value='4'>4</option>
+                                    <option value='5'>5</option>
+                                    <option value='6'>6</option>
+                                </select>
+                            </form>
+                            <div>
+                                <button className='btn btn-info' onClick={showHint}>Hint: {hintNum}</button>
+                                <button className='btn btn-secondary' onClick={reset}>Reset</button>
+                            </div>
+                        </div> :
+                        <div className='wordle-users'>
+                            <div className='wordle-user'>
+                                <div className='wordle-user-avatar avatar'>
+                                    WM
+                                </div>
+                                <div className='wordle-user-score'>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell correct'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell wrong-position'></div>
+                                </div>
+                            </div>
+                            <div className='wordle-user'>
+                                <div className='wordle-user-avatar avatar'>
+                                    WM
+                                </div>
+                                <div className='wordle-user-score'>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell correct'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell wrong-position'></div>
+                                </div>
+                            </div>
+                            <div className='wordle-user'>
+                                <div className='wordle-user-avatar avatar'>
+                                    WM
+                                </div>
+                                <div className='wordle-user-score'>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell correct'></div>
+                                    <div className='cell wordle-board-cell incorrect'></div>
+                                    <div className='cell wordle-board-cell wrong-position'></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    }
                     <div className='wordle-board'
                          style={{
                              gridTemplateColumns: 'repeat(' + numLetters + ', var(--cell-width))',

@@ -1,7 +1,7 @@
 import './header.css'
 import Utilities from "../../Utilities/Utilities";
 import DarkModeSwitch from "../../Utilities/DarkModeSwitch";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {
     Search,
     SearchIconWrapper,
@@ -155,7 +155,7 @@ const Header = ({notify, dummy}) => {
                             setToExpand(false);
                             setProfileExpand(true)
                         }}>
-                            <span>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</span>
+                            <img src={user?.picture || ''} alt={`${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0)}`} width='100%' height='100%'/>
                         </div>
                     </div>
 
@@ -221,10 +221,13 @@ const Header = ({notify, dummy}) => {
                         </button>
                     </div>
                     <div className='profile-mobile' style={!user ? {display: 'none'} : {}}>
-                        <div className='tab-mobile'>
+                        <div className='tab-mobile' onClick={() => {
+                            setToExpand(false);
+                            navigate('/profile');
+                        }}>
                             <span>View My Profile</span>
                             <div className='avatar'>
-                                <span>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</span>
+                                <img src={user?.picture || ''} alt={`${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0)}`} width='100%' height='100%'/>
                             </div>
                         </div>
                         <div className='tab-mobile'>
@@ -237,7 +240,10 @@ const Header = ({notify, dummy}) => {
                 </div>
             </div>
             <div className={`profile-container ${Utilities.isDarkMode ? 'dark-mode2' : 'light-mode'}`} style={{display: profileExpand ? 'block' : 'none'}} ref={profileRef}>
-                <div className='tab-mobile'>
+                <div className='tab-mobile' onClick={() => {
+                    setProfileExpand(false);
+                    navigate('/profile');
+                }}>
                     <span>Profile</span>
                 </div>
                 <div className='tab-mobile'>

@@ -111,15 +111,6 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
 
     if (isGameOver) {
         setTimeout(() => {
-            // if (room) {
-            //     RoomService.endGame(room._id)
-            //         .then(response => {
-            //             if (response.data.success) {
-            //                 setRoom(response.data.roomId);
-            //                 setGameStarted(false);
-            //             }
-            //         });
-            // }
             if (socket?.current && room?.host === user?.email) {
                 RoomService.endGame(room._id)
                     .then(() => {
