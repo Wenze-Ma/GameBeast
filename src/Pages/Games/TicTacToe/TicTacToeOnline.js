@@ -11,7 +11,7 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
     const [lock, setLock] = useState(false);
     useEffect(() => {
         if (room && user && socket) {
-            if (room.members[0] === user.email) {
+            if (room.host === user.email) {
                 setGameStateMap({
                     'X Turn': 'Your Turn',
                     'O Turn': 'Waiting for the other player...',
@@ -19,7 +19,7 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
                     'O Wins': 'You Lose!',
                     'Draw': 'Draw',
                 });
-            } else if (usersReady[0] === user.email) {
+            } else if (usersReady.includes(user.email)) {
                 setGameStateMap({
                     'O Turn': 'Your Turn',
                     'X Turn': 'Waiting for the other player...',
@@ -54,13 +54,13 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
 
     const handleOnClickCell = (index) => {
         if (board[index] !== '' || lock) return;
-        if (user.email !== room.members[0] && user.email !== usersReady[0]) {
+        if (!usersReady.includes(user.email)) {
             toast.info("You are not in the game!");
             return;
         }
         switch (gameState) {
             case GAME_STATE.X_TURN:
-                if (room.members[0] === user.email) {
+                if (room.host === user.email) {
                     if (socket.current) {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'X', index, 'O_TURN');
                         setLock(true)
@@ -70,7 +70,7 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
                 }
                 break;
             case GAME_STATE.O_TURN:
-                if (usersReady[0] === user.email) {
+                if (usersReady.includes(user.email) && user.email !== room.host) {
                     if (socket.current) {
                         socket.current.emit('tic-tac-toe-place-chess', room._id, 'O', index, 'X_TURN');
                         setLock(true);
@@ -114,7 +114,13 @@ const TicTacToeOnline = ({room, user, socket, usersReady}) => {
             if (socket?.current && room?.host === user?.email) {
                 RoomService.endGame(room._id)
                     .then(() => {
-                        socket.current.emit('end-game', room._id);
+                        let winner = null;
+                        if (gameState === GAME_STATE.X_WIN) {
+                            winner = room.host;
+                        } else if (gameState === GAME_STATE.O_WIN) {
+                            winner = usersReady[1];
+                        }
+                        socket.current.emit('end-game', room._id, winner);
                     });
             }
         }, 1000);

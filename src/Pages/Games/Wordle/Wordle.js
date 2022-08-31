@@ -3,6 +3,8 @@ import './wordle.css';
 import {useEffect, useState} from "react";
 import {dict} from "../../../Utilities/dictionary";
 import {toast} from "react-toastify";
+import UserService from "../../../Service/UserService";
+import RoomService from "../../../Service/RoomService";
 
 const CELL_STATE = {
     CORRECT: 'correct',
@@ -15,9 +17,19 @@ const keyboard = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
     ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-]
+];
 
-const Wordle = ({isOnline}) => {
+const checkWin = (status) => {
+    let isWin = true;
+    status.forEach(s => {
+        if (s !== CELL_STATE.CORRECT) {
+            isWin = false;
+        }
+    });
+    return isWin;
+}
+
+const Wordle = ({isOnline, room, socket, user, usersReady}) => {
     const [numLetters, setNumLetters] = useState('5');
     const [words, setWords] = useState(Array(6).fill('').map(_ => Array(5).fill('')));
     const [position, setPosition] = useState({row: 0, column: 0});
@@ -28,6 +40,91 @@ const Wordle = ({isOnline}) => {
     const [gameOver, setGameOver] = useState(false);
     const [hintNum, setHintNum] = useState(1);
     const [pressedKeys, setPressedKeys] = useState(Array(26).fill(CELL_STATE.NOT_FILLED));
+    const [usersInGame, setUsersInGame] = useState(Array(usersReady?.length).fill({}));
+    const [usersStatus, setUsersStatus] = useState(Array(usersReady?.length).fill('').map(_ => Array(5).fill(CELL_STATE.INCORRECT)));
+    const [usersTries, setUsersTries] = useState(Array(usersReady?.length).fill(0));
+
+    useEffect(() => {
+        if (isOnline && socket?.current) {
+            socket.current.on('wordle-send-word', (newStatus, email) => {
+                const index = usersReady.indexOf(email);
+                usersStatus[index] = newStatus;
+                usersTries[index] += 1;
+                setUsersStatus([...usersStatus]);
+                setUsersTries([...usersTries]);
+            });
+            socket.current.on('wordle-fail', (email) => {
+            });
+        }
+    }, []);
+    console.log(usersTries);
+
+    useEffect(() => {
+        if (isOnline && user.email === room.host) {
+            if (usersTries.reduce((partialSum, a) => partialSum + a, 0) === usersTries.length * 12) {
+                    RoomService.endGame(room._id)
+                        .then(() => {
+                            socket.current.emit('end-game', room._id, null, target);
+                        });
+            } else {
+                for (let i = 0; i < usersStatus.length; i++) {
+                    if (checkWin(usersStatus[i])) {
+                        RoomService.endGame(room._id)
+                            .then(() => {
+                                console.log(usersReady[i]);
+                                socket.current.emit('end-game',room._id, usersReady[i], target);
+                            });
+                    }
+                }
+            }
+            // let over = true;
+            // for (let i = 0; i < usersStatus.length; i++) {
+            //     if (usersTries < 12) {
+            //         over = false;
+            //         break;
+            //     }
+            // }
+            // if (over && gameOver) {
+            //     RoomService.endGame(room._id)
+            //         .then(() => {
+            //             socket.current.emit('end-game',room._id, null);
+            //         });
+            // }
+        }
+    }, [usersStatus]);
+
+    useEffect(() => {
+        if (usersReady) {
+            const fetchUsers = async () => {
+                for (const u of usersReady) {
+                    await UserService.getUserByEmail(u)
+                        .then(response => {
+                            usersInGame[usersReady.indexOf(u)] = response.data.user;
+                        });
+                }
+                return usersInGame;
+            };
+            fetchUsers().then(result => setUsersInGame([...result]));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isOnline && room && socket.current && user) {
+            if (user.email === room.host) {
+                socket.current.emit('wordle-pick-target', room._id, target);
+            }
+        }
+    }, [isOnline, room, socket, target, user]);
+    console.log(target);
+
+    useEffect(() => {
+        if (isOnline && socket?.current) {
+            socket.current.on('wordle-pick-target', t => {
+                setTarget(t);
+            });
+        }
+    });
+
     useEffect(() => {
         reset();
     }, [numLetters]);
@@ -48,16 +145,22 @@ const Wordle = ({isOnline}) => {
 
     useEffect(() => {
         if (position.row >= 6) {
-            toast.info("The word is " + target);
+            if (!isOnline) {
+                toast.info("The word is " + target);
+            }
             setGameOver(true);
+            if (isOnline && socket.current) {
+                console.log("failed")
+                socket.current.emit('wordle-fail', user.email);
+            }
         }
     }, [position]);
 
-    if (gameOver) {
+    if (gameOver && !isOnline) {
         setTimeout(() => {
             reset();
             setGameOver(false);
-        }, 2000)
+        }, 2000);
     }
 
     const reset = () => {
@@ -136,8 +239,13 @@ const Wordle = ({isOnline}) => {
             }
             setLock(false);
             if (words[position.row].join('').toLowerCase() === target) {
-                toast.success('Congratulations! The word is ' + target);
+                if (!isOnline) {
+                    toast.success('Congratulations! The word is ' + target);
+                }
                 setGameOver(true);
+            }
+            if (isOnline && socket.current) {
+                socket.current.emit('wordle-send-word', room._id, wordState[currentRow], user.email);
             }
             setPosition({row: position.row + 1, column: 0});
         } else if (key === 'Backspace' && position.column > 0) {
@@ -151,7 +259,7 @@ const Wordle = ({isOnline}) => {
         <div className={`page ${Utilities.isDarkMode ? 'page-dark-mode' : 'page-light-mode'}`}>
             <div className='wordle-game'>
                 <div className='wordle-body'>
-                    {isOnline ?
+                    {!isOnline ?
                         <div className='wordle-control'>
                             <form>
                                 <label htmlFor='letters'>Number of letters</label>
@@ -168,42 +276,21 @@ const Wordle = ({isOnline}) => {
                             </div>
                         </div> :
                         <div className='wordle-users'>
-                            <div className='wordle-user'>
-                                <div className='wordle-user-avatar avatar'>
-                                    WM
-                                </div>
-                                <div className='wordle-user-score'>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell correct'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell wrong-position'></div>
-                                </div>
-                            </div>
-                            <div className='wordle-user'>
-                                <div className='wordle-user-avatar avatar'>
-                                    WM
-                                </div>
-                                <div className='wordle-user-score'>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell correct'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell wrong-position'></div>
-                                </div>
-                            </div>
-                            <div className='wordle-user'>
-                                <div className='wordle-user-avatar avatar'>
-                                    WM
-                                </div>
-                                <div className='wordle-user-score'>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell correct'></div>
-                                    <div className='cell wordle-board-cell incorrect'></div>
-                                    <div className='cell wordle-board-cell wrong-position'></div>
-                                </div>
-                            </div>
+                            {usersReady.map((u, index) =>
+                                u === user.email ? null :
+                                    <div className='wordle-user' key={u}>
+                                        <div className='avatar wordle-user-avatar'>
+                                            <img src={usersInGame[index]?.picture || ''}
+                                                 alt={`${usersInGame[index]?.firstName?.charAt(0)}${usersInGame[index]?.lastName?.charAt(0)}`}
+                                                 width='100%' height='100%'/>
+                                        </div>
+                                        <span>{usersInGame[index]?.firstName || usersInGame[index]?.lastName?.charAt(0)}</span>
+                                        <div className='wordle-user-score'>
+                                            {usersStatus[index].map((s, i) => <div
+                                                className={`cell wordle-board-cell ${s}`} key={i}/>)}
+                                        </div>
+                                    </div>
+                            )}
                         </div>
                     }
                     <div className='wordle-board'
@@ -223,14 +310,17 @@ const Wordle = ({isOnline}) => {
                 </div>
                 <div className='wordle-keyboard'>
                     <div className='keyboard-row'>
-                        {keyboard[0].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                        {keyboard[0].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
                     </div>
                     <div className='keyboard-row'>
-                        {keyboard[1].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                        {keyboard[1].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
                     </div>
                     <div className='keyboard-row'>
                         <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Enter')}>Enter</div>
-                        {keyboard[2].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`} key={key} onClick={() => pressKey(key)}>{key}</div> )}
+                        {keyboard[2].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
                         <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Backspace')}>Del</div>
                     </div>
                 </div>

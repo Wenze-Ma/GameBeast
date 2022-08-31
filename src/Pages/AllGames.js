@@ -5,14 +5,14 @@ import Game from "../Models/Game";
 
 export const allGames = [
     new Game('Tic Tac Toe', 'https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg',
-        'Game', 'stupid game', 'tic-tac-toe', 2,
+        'Game', 'stupid game', 'tic-tac-toe', [2, 2],
         {
             board: Array(9).fill(''),
             state: 'X_TURN',
         }),
     new Game('Wordle', 'https://demos.creative-tim.com/soft-ui-design-system-pro/assets/img/nastuh.jpg',
         'Game', 'another stupid game',
-        'wordle', 2,
+        'wordle', [2, 10],
         {
             board: Array(9).fill(''),
             state: 'X_TURN',
