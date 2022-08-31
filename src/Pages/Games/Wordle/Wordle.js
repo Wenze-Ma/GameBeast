@@ -57,7 +57,6 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
             });
         }
     }, []);
-    console.log(usersTries);
 
     useEffect(() => {
         if (isOnline && user.email === room.host) {
@@ -77,19 +76,6 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
                     }
                 }
             }
-            // let over = true;
-            // for (let i = 0; i < usersStatus.length; i++) {
-            //     if (usersTries < 12) {
-            //         over = false;
-            //         break;
-            //     }
-            // }
-            // if (over && gameOver) {
-            //     RoomService.endGame(room._id)
-            //         .then(() => {
-            //             socket.current.emit('end-game',room._id, null);
-            //         });
-            // }
         }
     }, [usersStatus]);
 
@@ -115,7 +101,6 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
             }
         }
     }, [isOnline, room, socket, target, user]);
-    console.log(target);
 
     useEffect(() => {
         if (isOnline && socket?.current) {
@@ -223,6 +208,7 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
 
     const pressKey = async (key) => {
         const isCharacter = /[a-zA-Z]/g.test(key);
+        if (isOnline && !usersReady.includes(user.email)) return;
         if (!lock && key.length === 1 && isCharacter && position.column < numLetters) {
             words[position.row][position.column] = key.toUpperCase();
             setWords(words);
@@ -293,37 +279,46 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
                             )}
                         </div>
                     }
-                    <div className='wordle-board'
-                         style={{
-                             gridTemplateColumns: 'repeat(' + numLetters + ', var(--cell-width))',
-                             gridTemplateRows: 'repeat(' + numLetters + ', var(--cell-width))'
-                         }}
-                    >
-                        {words.map((word, index) =>
-                            word.map((letter, index2) =>
-                                <div
-                                    className={`wordle-board-cell cell ${flippedCells[index][index2] && 'is-flipped'} ${(wordState[index][index2] === CELL_STATE.CORRECT && 'correct') || (wordState[index][index2] === CELL_STATE.INCORRECT && 'incorrect') || (wordState[index][index2] === CELL_STATE.WRONG_POSITION && 'wrong-position')} ${position.row === index && position.column - 1 === index2 && 'add-text'}`}
-                                    key={index * numLetters + index2}>{letter}</div>
-                            )
-                        )}
-                    </div>
+                    {isOnline && !usersReady.includes(user.email) ? null :
+                        <div className='wordle-board'
+                             style={{
+                                 gridTemplateColumns: 'repeat(' + numLetters + ', var(--cell-width))',
+                                 gridTemplateRows: 'repeat(' + numLetters + ', var(--cell-width))'
+                             }}
+                        >
+                            {words.map((word, index) =>
+                                word.map((letter, index2) =>
+                                    <div
+                                        className={`wordle-board-cell cell ${flippedCells[index][index2] && 'is-flipped'} ${(wordState[index][index2] === CELL_STATE.CORRECT && 'correct') || (wordState[index][index2] === CELL_STATE.INCORRECT && 'incorrect') || (wordState[index][index2] === CELL_STATE.WRONG_POSITION && 'wrong-position')} ${position.row === index && position.column - 1 === index2 && 'add-text'}`}
+                                        key={index * numLetters + index2}>{letter}</div>
+                                )
+                            )}
+                        </div>
+                    }
                 </div>
-                <div className='wordle-keyboard'>
-                    <div className='keyboard-row'>
-                        {keyboard[0].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
-                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
+                {isOnline && !usersReady.includes(user.email) ? null :
+                    <div className='wordle-keyboard'>
+                        <div className='keyboard-row'>
+                            {keyboard[0].map(key => <div
+                                className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                key={key} onClick={() => pressKey(key)}>{key}</div>)}
+                        </div>
+                        <div className='keyboard-row'>
+                            {keyboard[1].map(key => <div
+                                className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                key={key} onClick={() => pressKey(key)}>{key}</div>)}
+                        </div>
+                        <div className='keyboard-row'>
+                            <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Enter')}>Enter
+                            </div>
+                            {keyboard[2].map(key => <div
+                                className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
+                                key={key} onClick={() => pressKey(key)}>{key}</div>)}
+                            <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Backspace')}>Del
+                            </div>
+                        </div>
                     </div>
-                    <div className='keyboard-row'>
-                        {keyboard[1].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
-                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
-                    </div>
-                    <div className='keyboard-row'>
-                        <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Enter')}>Enter</div>
-                        {keyboard[2].map(key => <div className={`keyboard-cell ${pressedKeys[key.charCodeAt(0) - 65]}`}
-                                                     key={key} onClick={() => pressKey(key)}>{key}</div>)}
-                        <div className='keyboard-cell keyboard-control' onClick={() => pressKey('Backspace')}>Del</div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
     )
