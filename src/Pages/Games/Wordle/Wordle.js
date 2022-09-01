@@ -1,7 +1,7 @@
 import Utilities from "../../../Utilities/Utilities";
 import './wordle.css';
 import {useEffect, useState} from "react";
-import {dict} from "../../../Utilities/dictionary";
+import {check_dict, dict} from "../../../Utilities/dictionary";
 import {toast} from "react-toastify";
 import UserService from "../../../Service/UserService";
 import RoomService from "../../../Service/RoomService";
@@ -29,38 +29,43 @@ const checkWin = (status) => {
     return isWin;
 }
 
-const Wordle = ({isOnline, room, socket, user, usersReady}) => {
+const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
     const [numLetters, setNumLetters] = useState('5');
     const [words, setWords] = useState(Array(6).fill('').map(_ => Array(5).fill('')));
     const [position, setPosition] = useState({row: 0, column: 0});
     const [flippedCells, setFlippedCells] = useState(Array(6).fill('').map(_ => Array(5).fill(false)));
     const [lock, setLock] = useState(false);
-    const [target, setTarget] = useState(dict['5'][Math.floor(Math.random() * dict['5'].length)]);
+    const [target, setTarget] = useState(onlineTarget || dict['5'][Math.floor(Math.random() * dict['5'].length)]);
     const [wordState, setWordState] = useState(Array(6).fill('').map(_ => Array(5).fill(CELL_STATE.NOT_FILLED)));
     const [gameOver, setGameOver] = useState(false);
     const [hintNum, setHintNum] = useState(1);
     const [pressedKeys, setPressedKeys] = useState(Array(26).fill(CELL_STATE.NOT_FILLED));
     const [usersInGame, setUsersInGame] = useState(Array(usersReady?.length).fill({}));
     const [usersStatus, setUsersStatus] = useState(Array(usersReady?.length).fill('').map(_ => Array(5).fill(CELL_STATE.INCORRECT)));
-    const [usersTries, setUsersTries] = useState(Array(usersReady?.length).fill(0));
+    const [usersTries, setUsersTries] = useState(new Set());
 
     useEffect(() => {
         if (isOnline && socket?.current) {
             socket.current.on('wordle-send-word', (newStatus, email) => {
                 const index = usersReady.indexOf(email);
                 usersStatus[index] = newStatus;
-                usersTries[index] += 1;
                 setUsersStatus([...usersStatus]);
-                setUsersTries([...usersTries]);
             });
             socket.current.on('wordle-fail', (email) => {
+                usersTries.add(email);
+                setUsersTries(new Set(Array.from(usersTries)));
+            });
+            socket.current.on('wordle-pick-target', t => {
+                setTarget(t);
             });
         }
-    }, []);
+    });
+
+    console.log(target);
 
     useEffect(() => {
         if (isOnline && user.email === room.host) {
-            if (usersTries.reduce((partialSum, a) => partialSum + a, 0) === usersTries.length * 12) {
+            if (usersTries.size === usersReady.length) {
                     RoomService.endGame(room._id)
                         .then(() => {
                             socket.current.emit('end-game', room._id, null, target);
@@ -70,14 +75,13 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
                     if (checkWin(usersStatus[i])) {
                         RoomService.endGame(room._id)
                             .then(() => {
-                                console.log(usersReady[i]);
                                 socket.current.emit('end-game',room._id, usersReady[i], target);
                             });
                     }
                 }
             }
         }
-    }, [usersStatus]);
+    }, [usersStatus, usersTries]);
 
     useEffect(() => {
         if (usersReady) {
@@ -97,18 +101,11 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
     useEffect(() => {
         if (isOnline && room && socket.current && user) {
             if (user.email === room.host) {
-                socket.current.emit('wordle-pick-target', room._id, target);
+                socket.current.emit('wordle-pick-target', room._id, onlineTarget);
             }
         }
-    }, [isOnline, room, socket, target, user]);
+    }, [isOnline, onlineTarget, room, socket, user]);
 
-    useEffect(() => {
-        if (isOnline && socket?.current) {
-            socket.current.on('wordle-pick-target', t => {
-                setTarget(t);
-            });
-        }
-    });
 
     useEffect(() => {
         reset();
@@ -134,9 +131,8 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
                 toast.info("The word is " + target);
             }
             setGameOver(true);
-            if (isOnline && socket.current) {
-                console.log("failed")
-                socket.current.emit('wordle-fail', user.email);
+            if (isOnline && socket.current && !checkWin(wordState[5])) {
+                socket.current.emit('wordle-fail', room._id, user.email);
             }
         }
     }, [position]);
@@ -215,7 +211,7 @@ const Wordle = ({isOnline, room, socket, user, usersReady}) => {
             setPosition({column: position.column + 1, row: position.row});
         } else if (key === 'Enter' && position.column === parseInt(numLetters)) {
             const currentRow = position.row;
-            if (!dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
+            if (!check_dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
                 toast.info('It is not a word!');
                 return;
             }

@@ -16,6 +16,7 @@ import TicTacToe from "./Games/TicTacToe/TicTacToe";
 import TicTacToeOnline from "./Games/TicTacToe/TicTacToeOnline";
 import {ArrowLeft} from "../Images/Icons/Icons";
 import Wordle from "./Games/Wordle/Wordle";
+import {dict} from "../Utilities/dictionary";
 
 export const STATUS = {
     HOST: 'HOST',
@@ -29,7 +30,7 @@ const getOnlineGame = (gameSelected, room, socket, user, usersReady) => {
         case 0:
             return <TicTacToeOnline room={room} socket={socket} user={user} usersReady={usersReady}/>
         case 1:
-            return <Wordle isOnline={true} room={room} socket={socket} user={user} usersReady={usersReady}/>
+            return <Wordle isOnline={true} room={room} socket={socket} user={user} usersReady={usersReady} onlineTarget={dict['5'][Math.floor(Math.random() * dict['5'].length)]}/>
         default:
             return null
     }
