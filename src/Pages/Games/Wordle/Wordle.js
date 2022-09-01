@@ -61,8 +61,6 @@ const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
         }
     });
 
-    console.log(target);
-
     useEffect(() => {
         if (isOnline && user.email === room.host) {
             if (usersTries.size === usersReady.length) {
