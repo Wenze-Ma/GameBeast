@@ -1,7 +1,7 @@
 import Utilities from "../../../Utilities/Utilities";
 import './wordle.css';
 import {useEffect, useState} from "react";
-import {check_dict, dict} from "../../../Utilities/dictionary";
+import {check_dict, check_dict2, dict} from "../../../Utilities/dictionary";
 import {toast} from "react-toastify";
 import UserService from "../../../Service/UserService";
 import RoomService from "../../../Service/RoomService";
@@ -110,6 +110,7 @@ const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
     }, [numLetters]);
 
     useEffect(() => {
+        if (lock) return;
         const keyDownHandler = async event => {
             if (position.row >= 6 || gameOver) return;
             if (event.keyCode === 13) {
@@ -121,7 +122,7 @@ const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
         return () => {
             document.removeEventListener('keydown', keyDownHandler);
         }
-    }, [numLetters, position.column, position.row, words]);
+    }, [numLetters, position.column, position.row, words, lock]);
 
     useEffect(() => {
         if (position.row >= 6) {
@@ -202,14 +203,16 @@ const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
 
     const pressKey = async (key) => {
         const isCharacter = /[a-zA-Z]/g.test(key);
+        if (lock) return;
         if (isOnline && !usersReady.includes(user.email)) return;
-        if (!lock && key.length === 1 && isCharacter && position.column < numLetters) {
+        if (key.length === 1 && isCharacter && position.column < numLetters) {
             words[position.row][position.column] = key.toUpperCase();
             setWords(words);
             setPosition({column: position.column + 1, row: position.row});
         } else if (key === 'Enter' && position.column === parseInt(numLetters)) {
             const currentRow = position.row;
-            if (!check_dict[numLetters].includes(words[currentRow].join('').toLowerCase())) {
+            const w = words[currentRow].join('').toLowerCase();
+            if (!check_dict[numLetters].has(w) && !check_dict2[numLetters].has(w)) {
                 toast.info('It is not a word!');
                 return;
             }
@@ -218,6 +221,13 @@ const Wordle = ({isOnline, room, socket, user, usersReady, onlineTarget}) => {
                 await flip(currentRow, i);
             }
             setLock(false);
+            // const targetMap = new Map();
+            // for (const l of target) {
+            //     if (!targetMap.has(l))
+            //         targetMap.set(l, 0);
+            //     targetMap.set(l, targetMap.get(l) + 1);
+            // }
+
             if (words[position.row].join('').toLowerCase() === target) {
                 if (!isOnline) {
                     toast.success('Congratulations! The word is ' + target);
